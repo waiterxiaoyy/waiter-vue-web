@@ -12,11 +12,11 @@
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button @click="getUserList">搜索</el-button>
+                    <el-button @click="getUserList" icon="el-icon-search">搜索</el-button>
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button type="primary" @click="dialogVisible = true" v-if="hasAuth('sys:user:save')">新增</el-button>
+                    <el-button type="primary" @click="dialogVisible = true" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
                 </el-form-item>
                 <el-form-item>
                     <el-popconfirm title="这是确定批量删除吗？" @onConfirm="delHandle(null)">
@@ -112,6 +112,7 @@
         </el-table>
 
         <el-pagination
+                style="margin-top: 20px"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 layout="total, sizes, prev, pager, next, jumper"

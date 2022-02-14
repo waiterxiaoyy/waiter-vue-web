@@ -12,11 +12,11 @@
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button @click="getRoleList">搜索</el-button>
+                    <el-button @click="getRoleList" icon="el-icon-search">搜索</el-button>
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button type="primary" @click="dialogVisible = true">新增</el-button>
+                    <el-button type="primary" @click="dialogVisible = true" icon="el-icon-circle-plus-outline">新增</el-button>
                 </el-form-item>
                 <el-form-item>
                     <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
@@ -90,6 +90,7 @@
 
 
         <el-pagination
+                style="margin-top: 20px"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 layout="total, sizes, prev, pager, next, jumper"
@@ -129,7 +130,7 @@
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button type="primary" @click="submitForm('editForm')">立即创建</el-button>
+                    <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
                     <el-button @click="resetForm('editForm')">重置</el-button>
                 </el-form-item>
             </el-form>

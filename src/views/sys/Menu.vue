@@ -10,8 +10,6 @@
                 :data="tableData"
                 style="width: 100%;margin-bottom: 20px;"
                 row-key="id"
-                border
-                stripe
                 default-expand-all
                 :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
 
@@ -146,8 +144,8 @@
 
 
                 <el-form-item>
-                    <el-button type="primary" @click="submitForm('editForm')">立即创建</el-button>
-                    <el-button @click="resetForm('editForm')">重置</el-button>
+                    <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
+                    <el-button @click="resetForm('editForm')">重 置</el-button>
                 </el-form-item>
             </el-form>
 

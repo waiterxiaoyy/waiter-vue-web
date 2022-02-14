@@ -37,6 +37,8 @@ request.interceptors.response.use(response=> {
     // 没有权限
     if (error.response.status === 401) {
         router.push("/login")
+        localStorage.clear()
+        sessionStorage.clear()
     }
     Notification.error(error.massage)
     return Promise.reject(error)
