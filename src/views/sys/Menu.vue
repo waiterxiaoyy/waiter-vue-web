@@ -2,7 +2,7 @@
     <div class="container">
         <!--操作栏 begin-->
         <div class="handle-box">
-            <el-button type="primary" icon="el-icon-plus" class="mr10" @click="dialogVisible = true">新增</el-button>
+            <el-button type="primary" icon="el-icon-circle-plus-outline" class="mr10" @click="dialogVisible = true">创建新项目</el-button>
         </div>
         <!--操作栏 end-->
 
@@ -17,7 +17,7 @@
                     prop="name"
                     label="名称"
                     sortable
-                    width="180">
+                    width="300">
             </el-table-column>
             <el-table-column
                     prop="perms"
@@ -35,9 +35,9 @@
                     prop="type"
                     label="类型">
                 <template slot-scope="scope">
-                    <el-tag size="small" v-if="scope.row.type === 0">目录</el-tag>
-                    <el-tag size="small" v-else-if="scope.row.type === 1" type="success">菜单</el-tag>
-                    <el-tag size="small" v-else-if="scope.row.type === 2" type="info">按钮</el-tag>
+                    <el-tag size="small" effect="dark" v-if="scope.row.type === 0" type="warning">目录</el-tag>
+                    <el-tag size="small" effect="dark" v-else-if="scope.row.type === 1" type="success">菜单</el-tag>
+                    <el-tag size="small" effect="dark" v-else-if="scope.row.type === 2" type="primary">按钮</el-tag>
                 </template>
 
             </el-table-column>

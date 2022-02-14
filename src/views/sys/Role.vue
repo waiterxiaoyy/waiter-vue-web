@@ -20,7 +20,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
-                        <el-button type="danger" slot="reference" :disabled="delBtlStatu">批量删除</el-button>
+                        <el-button type="danger" slot="reference" icon="el-icon-error" :disabled="delBtlStatu">批量删除</el-button>
                     </el-popconfirm>
                 </el-form-item>
             </el-form>
