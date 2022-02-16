@@ -53,21 +53,37 @@
                     label="用户名"
                     width="120">
             </el-table-column>
+
+            <el-table-column
+                    prop="nickname"
+                    label="实名"
+                    width="120">
+            </el-table-column>
+
+            <el-table-column
+                    prop="nickname"
+                    label="性别" width="45">
+                <template slot-scope="scope">
+                    <a v-if="scope.row.sex == 0">女</a>
+                    <a v-if="scope.row.sex == 1">男</a>
+                </template>
+            </el-table-column>
+
             <el-table-column
                     prop="code"
-                    label="角色名称">
+                    label="角色名称" width="250">
                 <template slot-scope="scope">
-                    <el-tag size="small" type="info" v-for="item in scope.row.sysRoles" :key="item">{{item.name}}</el-tag>
+                    <el-tag size="small" type="warning" v-for="item in scope.row.sysRoles" :key="item" style="margin-right:2px">{{item.name}}</el-tag>
                 </template>
 
             </el-table-column>
             <el-table-column
                     prop="email"
-                    label="邮箱">
+                    label="邮箱" width="130">
             </el-table-column>
             <el-table-column
-                    prop="phone"
-                    label="手机号">
+                    prop="zzstatus"
+                    label="政治面貌">
             </el-table-column>
 
             <el-table-column
@@ -83,6 +99,18 @@
                     prop="created"
                     width="200"
                     label="创建时间"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="updated"
+                    width="200"
+                    label="修改时间"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="lastLogin"
+                    width="200"
+                    label="最近登录时间"
             >
             </el-table-column>
             <el-table-column
@@ -162,7 +190,7 @@
             </div>
         </el-dialog>
 
-        <!-- 分配权限对话框 -->
+        <!-- 分配角色对话框 -->
         <el-dialog title="分配角色" :visible.sync="roleDialogFormVisible" width="600px">
 
             <el-form :model="roleForm">

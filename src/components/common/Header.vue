@@ -21,7 +21,7 @@
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
-                        {{userInfo.username}}
+                        {{userInfo.nickname}}
                         <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
@@ -45,7 +45,8 @@ export default {
             userInfo: {
                 id: "",
                 username: "",
-                avatar: ""
+                avatar: "",
+                nickname: ""
             }
         };
     },

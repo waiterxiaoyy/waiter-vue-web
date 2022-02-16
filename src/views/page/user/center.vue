@@ -9,7 +9,7 @@
                     <div>
                         <div style="text-align: center">
                             <div class="el-upload">
-                                <img src="https://blog20211013.oss-cn-shenzhen.aliyuncs.com/%E6%9C%BA%E5%99%A8%E4%BA%BA%20(2).png?versionId=CAEQMxiBgMDJgeHI8xciIDk0ZGY5ZWZmODE2YzQ3YjA4ZjhkZmZlMjgxY2IxNzk5"
+                                <img :src="user.avatar"
                                      title="点击上传头像" class="avatar">
                             </div>
                         </div>
@@ -24,27 +24,20 @@
                             <li>
                                 <svg-icon icon-class="user1"/>
                                 姓名
-                                <div class="user-right">{{ user.nickName }}</div>
-                            </li>
-                            <li>
-                                <svg-icon icon-class="dept"/>
-                                民族
-                                <div class="user-right"> {{ user.nationality }}</div>
+                                <div class="user-right">{{ user.nickname }}</div>
                             </li>
                             <li>
                                 <svg-icon icon-class="dept"/>
                                 性别
-                                <div class="user-right"> {{ user.sex }}</div>
+                                <div class="user-right">
+                                    <span v-if="user.sex == 1">男</span>
+                                    <span v-if="user.sex == 0">女</span>
+                                </div>
                             </li>
                             <li>
                                 <svg-icon icon-class="dept"/>
                                 所属学院
                                 <div class="user-right"> {{ user.college }}</div>
-                            </li>
-                            <li>
-                                <svg-icon icon-class="phone"/>
-                                手机号码
-                                <div class="user-right">{{ user.phone }}</div>
                             </li>
                             <li>
                                 <svg-icon icon-class="email"/>
@@ -54,20 +47,19 @@
                             <li>
                                 <svg-icon icon-class="user1"/>
                                 政治身份
-                                <div class="user-right">{{ user.identity }}</div>
+                                <div class="user-right">{{ user.zzstatus }}</div>
                             </li>
                             <li>
                                 <svg-icon icon-class="user1"/>
                                 地区
-                                <div class="user-right">{{ user.identity }}</div>
+                                <div class="user-right">{{ user.city }}</div>
                             </li>
 
                             <li>
                                 <svg-icon icon-class="anq"/>
                                 安全设置
                                 <div class="user-right">
-                                    <a>修改密码</a>
-                                    <a>修改邮箱</a>
+                                    <a @click="updatePassDig = true" style="cursor:pointer;">修改密码</a>
                                 </div>
                             </li>
                         </ul>
@@ -79,32 +71,37 @@
                 <el-card class="box-card">
                     <el-tabs v-model="activeName" @tab-click="handleClick">
                         <el-tab-pane label="用户资料" name="first">
-                            <el-form ref="form" :model="form" :rules="rules" style="margin-top: 10px;" size="small"
-                                     label-width="65px">
-                                <el-form-item label="昵称" prop="nickName">
-                                    <el-input v-model="form.nickName" style="width: 35%"/>
+                            <el-form ref="infoForm" :model="user" :rules="rules" style="margin-top: 10px;" size="small"
+                                     label-width="80px">
+                                <el-form-item label="昵称" prop="nickname">
+                                    <el-input v-model="user.nickname" style="width: 35%"/>
                                     <span style="color: #C0C0C0;margin-left: 10px;">用户昵称不作为登录使用</span>
                                 </el-form-item>
-                                <el-form-item label="手机号" prop="phone">
-                                    <el-input v-model="form.phone" style="width: 35%;"/>
-                                    <span style="color: #C0C0C0;margin-left: 10px;">手机号码不能重复</span>
+                                <el-form-item label="用户邮箱" prop="email">
+                                    <el-input v-model="user.email" style="width: 35%;"/>
+                                    <span style="color: #C0C0C0;margin-left: 10px;">邮箱需正确填写</span>
+                                </el-form-item>
+                                <el-form-item label="政治身份" prop="zzstatus">
+                                    <el-input v-model="user.zzstatus" style="width: 35%;"/>
+                                    <span style="color: #C0C0C0;margin-left: 10px;">政治面貌如实填写</span>
+                                </el-form-item>
+                                <el-form-item label="地区" prop="city">
+                                    <el-input v-model="user.city" style="width: 35%;"/>
+                                    <span style="color: #C0C0C0;margin-left: 10px;">请输入常居地址</span>
                                 </el-form-item>
                                 <el-form-item label="性别">
-                                    <el-radio-group v-model="form.gender" style="width: 178px">
-                                        <el-radio label="男">男</el-radio>
-                                        <el-radio label="女">女</el-radio>
+                                    <el-radio-group v-model="user.sex" style="width: 178px">
+                                        <el-radio :label="1">男</el-radio>
+                                        <el-radio :label="0">女</el-radio>
                                     </el-radio-group>
                                 </el-form-item>
                                 <el-form-item label="">
-                                    <el-button size="mini" type="primary">保存配置</el-button>
+                                    <el-button size="mini" type="primary" @click="editHandle('infoForm')">保存信息</el-button>
                                 </el-form-item>
                             </el-form>
                         </el-tab-pane>
-                        <!--    我的课程    -->
-                        <el-tab-pane label="我的课程" name="second">
-                        </el-tab-pane>
                         <!--    我的成绩    -->
-                        <el-tab-pane label="我的成绩" name="third">
+                        <el-tab-pane label="我的成绩" name="second">
                             <!--操作栏 begin-->
                             <div class="handle-box">
                                 <el-dropdown>
@@ -119,7 +116,9 @@
                                         <el-dropdown-item>蚵仔煎</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
-                                <el-tag style="margin-left: 15px" size="medium" color="#00d1b2" effect="dark">2020-2021-1</el-tag>
+                                <el-tag style="margin-left: 15px" size="medium" color="#00d1b2" effect="dark">
+                                    2020-2021-1
+                                </el-tag>
                             </div>
                             <el-table
                                     :data="grade"
@@ -180,11 +179,31 @@
                 </el-card>
             </el-col>
         </el-row>
+
+        <el-dialog title="修改密码" :visible.sync="updatePassDig" width="30%">
+            <el-form :model="updatePassForm" label-width="95px" ref="updatePassForm" :rules="updateFormRules">
+                <el-form-item label="旧密码：" prop="password" class="form-item">
+                    <el-input type="password" v-model="updatePassForm.currentPass" autocomplete="off" width="50%"></el-input>
+                </el-form-item>
+                <el-form-item label="新密码：" prop="currentPass" class="form-item">
+                    <el-input type="password" v-model="updatePassForm.password" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码：" prop="confirmPass" class="form-item">
+                    <el-input type="password" v-model="updatePassForm.confirmPass" autocomplete="off"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <a @click="updatePassDig = false" style="color: #317ef3; font-size: 14px;margin-right: 10px;cursor:pointer;">取消</a>
+                <el-button type="primary" @click="updatePass('updatePassForm')">确 认</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-    import { isvalidPhone } from '@/utils/validate'
+    import {isvalidPhone} from '@/utils/validate'
+
     export default {
         name: "center",
         data() {
@@ -200,26 +219,41 @@
             }
             return {
                 activeName: 'first',
-                user: {
-                    username: '18251104126',
-                    nickName: '小阳阳',
-                    nationality: '汉族',
-                    sex: '男',
-                    college: '信息学院',
-                    phone: '15766743463',
-                    email: 'waiterxiaoyy@qq.com',
-                    identity: '中共党员',
-                    area: ''
-                },
+                user: {},
                 form: {},
+                updatePassDig: false,
+                updatePassForm: {},
                 rules: {
-                    nickName: [
-                        { required: true, message: '请输入用户昵称', trigger: 'blur' },
-                        { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+                    nickname: [
+                        {required: true, message: '请输入用户昵称', trigger: 'blur'},
+                        {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'}
                     ],
-                    phone: [
-                        { required: true, trigger: 'blur', validator: validPhone }
-                    ]
+                    email: [
+                        {required: true, message: '请输入邮箱地址',trigger: 'blur'},
+                        {type: 'email',message: '请输入正确的邮箱地址',trigger: ['blur', 'change']}
+                    ],
+                    city: [
+                        {required: true, message: '请输入常居地址', trigger: 'blur'},
+                        {min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur'}
+                    ],
+                    zzstatus: [
+                        {required: true, message: '政治面貌不能为空', trigger: 'blur'},
+                        {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
+                    ],
+                },
+                updateFormRules: {
+                    password: [
+                        {required: true, message: '密码不能为空', trigger: 'blur'},
+                        {min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur'}
+                    ],
+                    currentPass: [
+                        {required: true, message: '密码不能为空', trigger: 'blur'},
+                        {min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur'}
+                    ],
+                    confirmPass: [
+                        {required: true, message: '密码不能为空', trigger: 'blur'},
+                        {min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur'}
+                    ],
                 },
                 grade: [
                     {
@@ -296,14 +330,14 @@
             }
         },
         created() {
-            this.form = {
-                id: this.user.id,
-                nickName: this.user.nickName,
-                gender: this.user.gender,
-                phone: this.user.phone
-            }
+            this.getUserInfo()
         },
         methods: {
+            getUserInfo() {
+                this.$axios.get('/sys/userInfo').then(res => {
+                    this.user = res.data.data
+                })
+            },
             toggleShow() {
                 this.show = !this.show
             },
@@ -319,6 +353,48 @@
                     return 'success-row';
                 }
                 return '';
+            },
+            editHandle(formName) {
+                this.$refs[formName].validate( (valid) => {
+                    if(valid) {
+                        this.$axios.post('/sys/updateme', this.user).then(res =>{
+                            if(res.data.code == 200) {
+                                this.getUserInfo()
+                                this.$notify({
+                                    showClose: true,
+                                    message: '用户信息更新成功',
+                                    type: 'success'
+                                });
+                            }
+                        })
+                    }
+                } )
+
+            },
+            updatePass (formName) {
+                if(this.updatePassForm.password != this.updatePassForm.confirmPass) {
+                    this.$notify({
+                        showClose: true,
+                        message: '两次密码输入不一致',
+                        type: 'warning'
+                    });
+                    return
+                }
+                this.$refs[formName].validate((valid)=> {
+                    if(valid) {
+                        this.$axios.post('/sys/user/updatePass', this.updatePassForm).then(res => {
+                            this.updatePassForm = {}
+                            if(res.data.code == 200) {
+                                this.$notify({
+                                    showClose: true,
+                                    message: '密码已成功更换',
+                                    type: 'success'
+                                });
+                            }
+                            this.updatePassDig = false
+                        })
+                    }
+                })
             }
         }
     }
@@ -330,24 +406,33 @@
         height: 120px;
         border-radius: 50%;
     }
+
     .user-info {
         padding-left: 0;
         list-style: none;
-        li{
+
+        li {
             border-bottom: 1px solid #F0F3F4;
             padding: 11px 0;
             font-size: 13px;
         }
+
         .user-right {
             float: right;
-            a{
+
+            a {
                 color: #317EF3;
             }
         }
 
     }
+
     .handle-box {
         margin-bottom: 20px;
+    }
+
+    .form-item .el-form-item__label{
+        font-weight: bold;
     }
 
 </style>

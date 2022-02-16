@@ -35,11 +35,11 @@
                             </el-form-item>
 
                             <el-form-item>
-                                <el-button type="primary" icon="el-icon-circle-plus-outline" v-if="hasAuth('mem:stu:add')">新增学生</el-button>
+                                <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addStudentDig = true" v-if="hasAuth('mem:stu:add')">新增学生</el-button>
                             </el-form-item>
 
                             <el-form-item>
-                                <el-button type="warning" icon="el-icon-upload" v-if="hasAuth('mem:stu:add')">批量导入</el-button>
+                                <el-button type="warning" icon="el-icon-upload" v-if="hasAuth('mem:stu:add')" @click="uploadDrawer = true">批量导入</el-button>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="info" icon="el-icon-download" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:download')">批量导出</el-button>
@@ -121,14 +121,44 @@
                     </el-pagination>
                 </el-col>
             </el-row>
+
         </el-card>
+        <UploadDrawer :uploadDrawer.sync="uploadDrawer"></UploadDrawer>
+
+        <el-dialog title="新增学生" :visible.sync="addStudentDig" width="30%" >
+            <el-form :model="addStudentForm" :rules="addStuFormRules" ref="addStudentForm" width="30%" label-width="80px">
+                <el-form-item label="选择班级" prop="casSelectData">
+                    <el-cascader
+                            width="100%"
+                            style="width: 100%;"
+                            v-model="addStudentForm.casSelectData"
+                            :options="casData"
+                            placeholder="请选择要导入的班级"
+                            :props="optionProps"
+                            @change="handleChange">
+                    </el-cascader>
+                </el-form-item>
+                <el-form-item label="学号" prop="studentId">
+                    <el-input v-model="addStudentForm.studentId" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="姓名" prop="studentName">
+                    <el-input v-model="addStudentForm.studentName" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="addStudentDig = false">取 消</el-button>
+                <el-button type="primary" @click="addStuHandle('addStudentForm')">确 定</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import UploadDrawer from "./upload/UploadDrawer";
     export default {
         name: "StudentInfo",
 
+        components: {UploadDrawer},
         data() {
             return {
                 total: 0,
@@ -164,7 +194,36 @@
                     zip: 200333
                 }],
                 multipleSelection: [],
-                multiSelStatu: true
+                multiSelStatu: true,
+
+                uploadDrawer: false,
+
+                addStudentDig: false,
+
+                addStudentForm: {},
+
+                addStuFormRules: {
+                    casSelectData: [
+                        {required: true, message: '请选择班级',trigger: 'blur'},
+                        {type: 'array',message: '请选择班级',trigger: ['blur', 'change']}
+                    ],
+                    studentId: [
+                        {required: true, message: '请输入11位学号', trigger: 'blur'},
+                        {min: 11, max: 11, message: '请输入11位学号', trigger: 'blur'}
+                    ],
+                    studentName: [
+                        {required: true, message: '请输入姓名', trigger: 'blur'},
+                        {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
+                    ],
+                },
+
+                optionProps: {
+                    value: 'id',
+                    label: 'label',
+                    children: 'children'
+                },// 格式化工单信息
+                casData: [],
+                casSelectData: [],
             }
         },
         created() {
@@ -179,6 +238,7 @@
             getClassTree() {
                 this.$axios.get("/mem/stu/getcctree").then(res => {
                     this.collegeClassTree = res.data.data
+                    this.casData = this.getTreeData(res.data.data)
                 })
             },
             filterNode(value, data) {
@@ -200,7 +260,7 @@
                 } else {
                     while(this.nowShow[this.nowShow.length - 1].collegeId != data.collegeId) {
                         this.nowShow.pop()
-                        if(this.nowShow[this.nowShow.length - 1].collegeId == 0) {
+                        if(this.nowShow.length <= 0 || this.nowShow[this.nowShow.length - 1].collegeId == 0) {
                             this.nowShow = []
                             break
                         }
@@ -210,7 +270,6 @@
                     }
                     this.nowShow.push(data)
                 }
-                console.log(this.nowShow);
             },
 
             toggleSelection(rows) {
@@ -232,6 +291,47 @@
             },
             handleCurrentChange(val) {
                 console.log(`当前页: ${val}`);
+            },
+
+            handleChange(value) {
+                console.log(value);
+            },
+
+            // 递归判断列表，把最后的children设为undefined
+            getTreeData(data) {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].children.length < 1) {
+                        // children若为空数组，则将children设为undefined
+                        data[i].children = undefined;
+                    } else {
+                        // children若不为空数组，则继续 递归调用 本方法
+                        this.getTreeData(data[i].children);
+                    }
+                }
+                return data;
+            },
+
+            addStuHandle(formName) {
+                this.$refs[formName].validate((valid)=> {
+                    if(valid) {
+                        this.addStudentForm.classId = this.addStudentForm.casSelectData[this.addStudentForm.casSelectData.length - 1]
+
+                        let postData = []
+                        postData.push(this.addStudentForm)
+                        console.log(postData)
+                        this.$axios.post('/mem/stu/addStuInClass', postData).then(res => {
+                            if(res.data.code == 200) {
+                                this.$notify({
+                                    showClose: true,
+                                    message: '添加学生<' + this.addStudentForm.studentName + '>成功',
+                                    type: 'success'
+                                });
+                                this.addStudentForm = {}
+                                this.addStudentDig = false
+                            }
+                        })
+                    }
+                })
             }
         },
     }
