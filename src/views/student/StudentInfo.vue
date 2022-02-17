@@ -23,7 +23,7 @@
                         <el-form :inline="true">
                             <el-form-item>
                                 <el-input
-                                        v-model="searchForm.username"
+                                        v-model="searchForm.studentName"
                                         placeholder="查找学生姓名"
                                         clearable
                                 >
@@ -31,7 +31,7 @@
                             </el-form-item>
 
                             <el-form-item>
-                                <el-button icon="el-icon-search">搜索</el-button>
+                                <el-button icon="el-icon-search" @click="getClassStudentList">搜索</el-button>
                             </el-form-item>
 
                             <el-form-item>
@@ -70,39 +70,17 @@
                         </el-table-column>
                         <el-table-column
                                 fixed
-                                prop="date"
-                                label="日期"
-                                width="150">
+                                prop="studentName"
+                                label="学生姓名">
                         </el-table-column>
                         <el-table-column
-                                prop="name"
-                                label="姓名"
-                                width="120">
+                                prop="studentId"
+                                label="学号">
                         </el-table-column>
-                        <el-table-column
-                                prop="province"
-                                label="省份"
-                                width="120">
-                        </el-table-column>
-                        <el-table-column
-                                prop="city"
-                                label="市区"
-                                width="120">
-                        </el-table-column>
-                        <el-table-column
-                                prop="address"
-                                label="地址"
-                                width="300">
-                        </el-table-column>
-                        <el-table-column
-                                prop="zip"
-                                label="邮编"
-                                width="120">
-                        </el-table-column>
+
                         <el-table-column
                                 fixed="right"
-                                label="操作"
-                                width="100">
+                                label="操作">
                             <template slot-scope="scope">
                                 <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
                                 <el-button type="text" size="small">编辑</el-button>
@@ -112,7 +90,7 @@
                     <el-pagination
                             @size-change="handleSizeChange"
                             @current-change="handleCurrentChange"
-                            :page-sizes="[100, 200, 300, 400]"
+                            :page-sizes="[10, 20, 50, 100]"
                             :current-page="current"
                             :page-size="size"
                             style="margin-top: 15px"
@@ -123,7 +101,7 @@
             </el-row>
 
         </el-card>
-        <UploadDrawer :uploadDrawer.sync="uploadDrawer"></UploadDrawer>
+        <UploadDrawer :uploadDrawer.sync="uploadDrawer" @func="getClassStudentList"></UploadDrawer>
 
         <el-dialog title="新增学生" :visible.sync="addStudentDig" width="30%" >
             <el-form :model="addStudentForm" :rules="addStuFormRules" ref="addStudentForm" width="30%" label-width="80px">
@@ -178,21 +156,7 @@
 
                 nowShow: [],
 
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    province: '上海',
-                    city: '普陀区',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    zip: 200333
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    province: '上海',
-                    city: '普陀区',
-                    address: '上海市普陀区金沙江路 1517 弄',
-                    zip: 200333
-                }],
+                tableData: [],
                 multipleSelection: [],
                 multiSelStatu: true,
 
@@ -241,13 +205,29 @@
                     this.casData = this.getTreeData(res.data.data)
                 })
             },
+
+            getClassStudentList() {
+                this.$axios.get("/mem/stu/getClassStuList", {
+                    params: {
+                        studentName: this.searchForm.studentName,
+                        classId: this.searchForm.classId,
+                        current: this.current,
+                        size: this.size
+                    }
+                }).then(res => {
+                    this.tableData = res.data.data.records
+                    this.size = res.data.data.size
+                    this.current = res.data.data.current
+                    this.total = res.data.data.total
+                })
+            },
             filterNode(value, data) {
                 if (!value) return true;
                 return data.label.indexOf(value) !== -1;
             },
 
             handleNodeClick(data) {
-                if(this.nowShow == []) {
+                if(this.nowShow.length == 0) {
                     this.nowShow.push(data)
                 } else if(data.collegeId == 0) {
                     this.nowShow = []
@@ -270,6 +250,11 @@
                     }
                     this.nowShow.push(data)
                 }
+
+                if(data.type == 2) {
+                    this.searchForm.classId = data.id
+                    this.getClassStudentList()
+                }
             },
 
             toggleSelection(rows) {
@@ -287,10 +272,12 @@
                 this.multiSelStatu = val.length == 0
             },
             handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
+                this.size = val
+                // this.getUserList()
             },
             handleCurrentChange(val) {
-                console.log(`当前页: ${val}`);
+                this.current = val
+                // this.getUserList()
             },
 
             handleChange(value) {
@@ -318,7 +305,6 @@
 
                         let postData = []
                         postData.push(this.addStudentForm)
-                        console.log(postData)
                         this.$axios.post('/mem/stu/addStuInClass', postData).then(res => {
                             if(res.data.code == 200) {
                                 this.$notify({
@@ -326,6 +312,7 @@
                                     message: '添加学生<' + this.addStudentForm.studentName + '>成功',
                                     type: 'success'
                                 });
+                                this.getClassStudentList()
                                 this.addStudentForm = {}
                                 this.addStudentDig = false
                             }

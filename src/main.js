@@ -21,9 +21,12 @@ import 'babel-polyfill';
 import uploader from 'vue-simple-uploader';
 
 import global from './globalFun'
+import MyComm from "./global";
 
 Vue.use(uploader);
 Vue.prototype.$axios = axios
+Vue.prototype.$MyComm = MyComm;
+
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);

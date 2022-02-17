@@ -4,6 +4,8 @@ import { Notification } from 'element-ui';
 
 axios.defaults.baseURL = "http://localhost:8081"
 
+
+
 const request = axios.create({
     timeout: 10000,
     headers: {

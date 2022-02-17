@@ -8,81 +8,108 @@
             :visible.sync="tableDrawer">
         <div>
             <el-form :inline="true" class="handle-box">
-                <el-form-item>
-                    <el-input
-                            v-model="searchForm.username"
-                            placeholder="用户名"
-                            clearable
-                    >
-                    </el-input>
-                </el-form-item>
 
                 <el-form-item>
-                    <el-button @click="getUserList" icon="el-icon-search">搜索</el-button>
-                </el-form-item>
-
-                <el-form-item>
-                    <el-button type="primary" @click="dialogVisible = true" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
+                    <el-button type="primary" @click="addStudentDig = true" icon="el-icon-circle-plus-outline">新增</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <el-popconfirm title="这是确定批量删除吗？" @onConfirm="delHandle(null)">
-                        <el-button type="danger" slot="reference" :disabled="delBtlStatu" v-if="hasAuth('sys:user:delete')">批量删除</el-button>
+                    <el-popconfirm title="确定批量删除吗？" @onConfirm="delHandle()">
+                        <el-button type="danger" slot="reference" :disabled="btStatus">批量删除</el-button>
+                    </el-popconfirm>
+                </el-form-item>
+                <el-form-item>
+                    <el-popconfirm title="即将导入学生名单？" @onConfirm="upSubmit()">
+                        <el-button type="success" slot="reference" v-if="hasAuth('mem:stu:add')" :disabled="btStatus">确认导入</el-button>
                     </el-popconfirm>
                 </el-form-item>
             </el-form>
         </div>
+        <div class="upload-warning">
+            下表为【即将导入】名单，一共【{{newList.length}}】名学生，【{{existList.length}}】名重复学生，请仔细检验名单。（数据库中已存在学生名单，请拖动到后面查看，此次导入名单将不包含重复学生。）
+        </div>
         <el-table
-                :data="tableData"
+                ref="multipleTable"
+                :data="newList"
                 border
-                @selection-change="handleSelectionChange"
-                class="table-class">
+                stripe
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
             <el-table-column
                     type="selection"
                     width="55">
             </el-table-column>
             <el-table-column
-                    prop="date"
-                    label="日期"
-                    width="180">
+                    prop="studentName"
+                    label="学生姓名">
             </el-table-column>
             <el-table-column
-                    prop="name"
-                    label="姓名"
-                    width="180">
+                    prop="studentId"
+                    label="学号">
             </el-table-column>
+
             <el-table-column
-                    prop="address"
-                    label="地址">
-            </el-table-column>
-            <el-table-column
-                    prop="icon"
-                    width="100px"
+                    fixed="right"
                     label="操作">
-
                 <template slot-scope="scope">
-                    <el-button type="text" @click="editHandle(scope.row.id)">编辑</el-button>
-                    <el-divider direction="vertical"></el-divider>
-
-                    <template>
-                        <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="delHandle(scope.row.id)">
-                            <el-button type="text" slot="reference">删除</el-button>
-                        </el-popconfirm>
-                    </template>
-
+                    <el-button type="text" size="small" @click="editHandle(scope.row)">编辑</el-button>
                 </template>
             </el-table-column>
         </el-table>
 
-        <el-pagination
-                style="margin-top: 20px"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                layout="total, sizes, prev, pager, next, jumper"
-                :page-sizes="[10, 20, 50, 100]"
-                :current-page="current"
-                :page-size="size"
-                :total="total">
-        </el-pagination>
+        <div class="upload-danger" id="exist">
+            下表为【重复学生】名单，一共【{{existList.length}}】名学生。（此次导入名单将不包含重复学生。）
+        </div>
+        <el-table
+                ref="multipleTable"
+                :data="existList"
+                border
+                stripe
+                style="width: 100%">
+
+            <el-table-column
+                    type="index"
+                    width="50">
+            </el-table-column>
+
+            <el-table-column
+                    prop="studentName"
+                    label="学生姓名">
+            </el-table-column>
+            <el-table-column
+                    prop="studentId"
+                    label="学号">
+            </el-table-column>
+        </el-table>
+
+        <el-dialog title="新增学生" :visible.sync="addStudentDig" width="30%" >
+            <el-form :model="addStudentForm" :rules="addStuFormRules" ref="addStudentForm" width="30%" label-width="80px">
+                <el-form-item label="学号" prop="studentId">
+                    <el-input v-model="addStudentForm.studentId" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="姓名" prop="studentName">
+                    <el-input v-model="addStudentForm.studentName" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="addStudentDig = false">取 消</el-button>
+                <el-button type="primary" @click="addStuHandle('addStudentForm')">确 定</el-button>
+            </div>
+        </el-dialog>
+
+        <el-dialog title="修改信息" :visible.sync="editStudentDig" width="30%" >
+            <el-form :model="editForm" :rules="addStuFormRules" ref="editStudentForm" width="30%" label-width="80px">
+                <el-form-item label="学号" prop="studentId">
+                    <el-input v-model="editForm.studentId" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="姓名" prop="studentName">
+                    <el-input v-model="editForm.studentName" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="editStudentDig = false">取 消</el-button>
+                <el-button type="primary" @click="editSubmit()">确 定</el-button>
+            </div>
+        </el-dialog>
     </el-drawer>
 </template>
 
@@ -92,36 +119,47 @@
         props: {
             tableDrawer: {
                 type: Boolean
+            },
+            newList: {
+                type: Array
+            },
+            existList: {
+                type: Array
+            },
+            uploadData: {
+                type: Array
             }
+
         },
         data() {
             return {
                 tableDrawer: true,
                 searchForm: {},
 
-                delBtlStatu: true,
+                btStatus: true,
 
                 total: 0,
                 size: 10,
                 current: 1,
 
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }]
+                addStudentDig: false,
+
+                addStudentForm: {},
+
+                addStuFormRules: {
+                    studentId: [
+                        {required: true, message: '请输入11位学号', trigger: 'blur'},
+                        {min: 11, max: 11, message: '请输入11位学号', trigger: 'blur'}
+                    ],
+                    studentName: [
+                        {required: true, message: '请输入姓名', trigger: 'blur'},
+                        {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
+                    ],
+                },
+                multipleSelection: [],
+
+                editForm: {},
+                editStudentDig: false
 
             }
         },
@@ -148,18 +186,136 @@
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
-
-                this.delBtlStatu = val.length == 0
+                console.log(this.multipleSelection)
+                this.btStatus = val.length == 0
             },
+            addStuHandle(formName) {
+                this.$axios.post('/mem/stu/existStu', this.addStudentForm).then(res=> {
+                    if(res.data.code == 200) {
+                        this.$notify({
+                            title: '提示',
+                            message: '已添加到待导入名单',
+                            position: 'top-right',
+                            type: "success"
+                        });
+                        this.addStudentDig = false
+                        this.newList.push(this.addStudentForm)
+                    }
+                })
+            },
+            delHandle() {
+                var tempList = []
+                for(var i = 0; i < this.newList.length; i++) {
+                    if(this.multipleSelection.indexOf(this.newList[i]) != -1) {
+                        continue
+                    }
+                    tempList.push(this.newList[i])
+                }
+                this.newList = tempList
+            },
+            editHandle(row) {
+
+                this.editForm = row
+                this.editStudentDig = true
+              console.log(row)
+            },
+            editSubmit() {
+                this.$axios.post('/mem/stu/existStu', this.editForm).then(res=> {
+                    if(res.data.code == 200) {
+
+                        var index = this.newList.indexOf(this.editForm)
+                        if(index != -1) {
+                            this.newList[index] = this.editForm
+                        }
+                        this.$notify({
+                            title: '提示',
+                            message: '修改信息成功',
+                            position: 'top-right',
+                            type: "success"
+                        });
+                        this.editStudentDig = false
+                    }
+                })
+
+            },
+            upSubmit() {
+                if(this.multipleSelection == [] ||this.multipleSelection.length <= 0) {
+                    this.$notify({
+                        title: '提示',
+                        message: '至少选择一名学生',
+                        position: 'top-right',
+                        type: "warning"
+                    });
+                    return
+                }
+                for(var i = 0; i < this.multipleSelection.length; i++) {
+                    this.multipleSelection[i].classId = this.uploadData.classId
+                }
+                this.$axios.post('/mem/stu/addStuInClass', this.multipleSelection).then(res=> {
+                    if(res.data.code == 200) {
+                        this.$notify({
+                            title: '提示',
+                            message: '学生名单导入成功，' + '共【'+ this.multipleSelection.length + '】条数据',
+                            position: 'top-right',
+                            type: "success"
+                        });
+                        this.newList = []
+                        this.existList = []
+                        this.tableDrawer = false
+                        this.$emit('update:tableDrawer', false)
+                        this.$emit('func', "关闭")
+                    }
+                })
+
+            },
+            //锚点跳转
+            goAnchor(selector) {
+                var el = document.getElementById(selector)
+                this.$nextTick(function () {
+                    window.scrollTo({"behavior":"smooth","top":el.offsetTop});
+                })
+            }
+
         }
     }
 </script>
 
-<style scoped>
+<style lang="scss">
     .table-class {
         margin: 0px 10px 0px 10px;
     }
     .handle-box {
         margin:0 10px 10px 15px;
     }
+
+
+    .el-drawer__body {
+        overflow: auto;
+    }
+
+    .el-drawer__container ::-webkit-scrollbar{
+        display: none;
+    }
+
+    .upload-warning {
+        text-align: left;
+        color: #ffffff;
+        padding: 8px 16px;
+        background-color: #5977b5;
+        border-radius: 4px;
+        border-left: 8px solid #01355d;
+        margin: 5px 10px 20px 10px;
+    }
+
+    .upload-danger {
+        text-align: left;
+        color: #ffffff;
+        padding: 8px 16px;
+        background-color: #f56c6c;
+        border-radius: 4px;
+        border-left: 8px solid red;
+        margin: 5px 10px 20px 10px;
+    }
+
+
 </style>
