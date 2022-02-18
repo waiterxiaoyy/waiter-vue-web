@@ -45,7 +45,7 @@
                                 <el-button type="info" icon="el-icon-download" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:download')">批量导出</el-button>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="danger" icon="el-icon-error" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:delete')">批量删除</el-button>
+                                <el-button type="danger" icon="el-icon-error" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:delete')" @click="delHandle(null)">批量删除</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -83,7 +83,14 @@
                                 label="操作">
                             <template slot-scope="scope">
                                 <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                                <el-divider direction="vertical"></el-divider>
                                 <el-button type="text" size="small">编辑</el-button>
+                                <el-divider direction="vertical"></el-divider>
+                                <template>
+                                    <el-popconfirm title="此操作为危险操作，确定删除吗？" @onConfirm="delHandle(scope.row)">
+                                        <el-button type="text" slot="reference">删除</el-button>
+                                    </el-popconfirm>
+                                </template>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -216,8 +223,6 @@
                     }
                 }).then(res => {
                     this.tableData = res.data.data.records
-                    this.size = res.data.data.size
-                    this.current = res.data.data.current
                     this.total = res.data.data.total
                 })
             },
@@ -273,11 +278,12 @@
             },
             handleSizeChange(val) {
                 this.size = val
-                // this.getUserList()
+                this.getClassStudentList()
             },
             handleCurrentChange(val) {
                 this.current = val
-                // this.getUserList()
+                console.log(this.current)
+                this.getClassStudentList()
             },
 
             handleChange(value) {
@@ -319,7 +325,49 @@
                         })
                     }
                 })
+            },
+            delHandle(select) {
+                if(select != null) {
+                    this.multipleSelection.push(select)
+                    this.$axios.post('/mem/stu/delete', this.multipleSelection).then(res => {
+                        if(res.data.code == 200) {
+                            this.getClassStudentList()
+                            this.multipleSelection = []
+                            this.$notify({
+                                showClose: true,
+                                message: '删除成功',
+                                type: 'success'
+                            });
+                        }
+                    })
+
+                } else {
+                    let _this  = this
+                    this.$confirm('此操作将永久删除所选成员, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+
+                        _this.$axios.post('/mem/stu/delete', _this.multipleSelection).then(res => {
+                            if(res.data.code == 200) {
+                                this.getClassStudentList()
+                                this.$notify({
+                                    showClose: true,
+                                    message: '批量删除成功',
+                                    type: 'success'
+                                });
+                            }
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                }
             }
+
         },
     }
 </script>

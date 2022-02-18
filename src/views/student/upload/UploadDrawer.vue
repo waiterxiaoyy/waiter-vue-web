@@ -85,7 +85,6 @@
                 handler(newValue) {
                     this.uploadDrawer = newValue
                 }
-
             }
         },
         methods: {
