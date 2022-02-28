@@ -54,7 +54,7 @@
         },
         data() {
             return {
-                uploadDrawer: false,
+                // uploadDrawer: false,
                 uploadFileUrl: this.$MyComm.baseURL + '/mem/stu/upload',
 
                 uploadHeaders: {

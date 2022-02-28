@@ -60,6 +60,8 @@
       audio: (opt_options && opt_options.audio) ? true : false,
     }).then(function(stream) {
       element.srcObject = stream;
+      //加上这一句话
+      window.stream = stream;
     }).catch(function(err) {
       throw Error('Cannot capture user camera.');
     });

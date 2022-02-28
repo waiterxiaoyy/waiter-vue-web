@@ -11,7 +11,6 @@
                                 class="filter-tree"
                                 :data="collegeClassTree"
                                 :props="defaultProps"
-                                default-expand-all
                                 :filter-node-method="filterNode"
                                 @node-click="handleNodeClick"
                                 ref="tree">
@@ -40,9 +39,6 @@
 
                             <el-form-item>
                                 <el-button type="warning" icon="el-icon-upload" v-if="hasAuth('mem:stu:add')" @click="uploadDrawer = true">批量导入</el-button>
-                            </el-form-item>
-                            <el-form-item>
-                                <el-button type="info" icon="el-icon-download" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:download')">批量导出</el-button>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="danger" icon="el-icon-error" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:delete')" @click="delHandle(null)">批量删除</el-button>

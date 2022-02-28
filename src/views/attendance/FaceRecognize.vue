@@ -3,40 +3,37 @@
        <el-card>
            <el-row :gutter="20">
                <el-col :xs="24" :sm="24" :md="24" :lg="6" :xl="6" style="margin-bottom: 15px">
+                   <el-input
+                           placeholder="输入关键字进行查找"
+                           v-model="filterText" style="margin-bottom: 10px">
+                   </el-input>
                    <el-tree
                            class="filter-tree"
-                           :data="data"
+                           :data="collegeClassTree"
                            :props="defaultProps"
-                           default-expand-all
+                           :filter-node-method="filterNode"
                            @node-click="handleNodeClick"
                            ref="tree">
                    </el-tree>
                </el-col>
                <el-col :xs="24" :sm="24" :md="24"  :lg="8" :xl="8" style="margin-bottom: 15px">
-                   <el-form ref="form" :model="form" label-width="80px">
-                       <el-form-item label="学生姓名">
-                           <el-input v-model="form.name"></el-input>
+                   <el-form ref="studentForm" :model="studentForm" label-width="80px" :rules="formRules">
+                       <el-form-item label="学生姓名" prop="studentName">
+                           <el-input v-model="studentForm.studentName"></el-input>
                        </el-form-item>
-                       <el-form-item label="学生学号">
-                           <el-input v-model="form.name"></el-input>
+                       <el-form-item label="学生学号" prop="studentId">
+                           <el-input v-model="studentForm.studentId"></el-input>
                        </el-form-item>
-                       <el-form-item label="所在班级">
-                           <el-cascader
-                                   v-model="value"
-                                   :options="options"></el-cascader>
-                       </el-form-item>
-                       <el-form-item label="考勤时间">
-                           <el-col :span="11">
-                               <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
-                           </el-col>
-                           <el-col class="line" :span="2">-</el-col>
-                           <el-col :span="11">
-                               <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
-                           </el-col>
+                       <el-form-item label="考勤时间" prop="nowTime">
+                               <el-date-picker
+                                       v-model="studentForm.nowTime"
+                                       type="datetime"
+                                       placeholder="选择日期时间">
+                               </el-date-picker>
                        </el-form-item>
                        <el-form-item>
-                           <el-button type="primary">立即创建</el-button>
-                           <el-button>取消</el-button>
+                           <el-button type="success" @click="init">立即考勤</el-button>
+                           <el-button @click="stopMediaStreamTrack">取 消</el-button>
                        </el-form-item>
                    </el-form>
                </el-col>
@@ -55,7 +52,8 @@
                                <div slot="header">
                                    <span>人脸截取</span>
                                </div>
-                               <canvas class="canvas-show" id="canvas"></canvas>
+                               <canvas class="canvas-shot" id="screenshotCanvas"></canvas>
+
                            </el-card>
                        </el-col>
                        <el-col :span="12">
@@ -63,13 +61,47 @@
                                <div slot="header">
                                    <span>数据库人脸</span>
                                </div>
-                               <canvas class="canvas-shot" id="screenshotCanvas"></canvas>
+                               <canvas class="canvas-show" id="canvas"></canvas>
                            </el-card>
                        </el-col>
                    </el-row>
-               </el-col >
+               </el-col>
            </el-row>
        </el-card>
+        <el-dialog title="学生名单" :visible.sync="studentDig" width="400">
+            <div class="handle-box">
+                <el-form :inline="true">
+                    <el-form-item>
+                        <el-input
+                                v-model="searchForm.studentName"
+                                placeholder="查找学生姓名"
+                                clearable
+                        >
+                        </el-input>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button icon="el-icon-search" @click="getClassStudentList">搜索</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <el-table
+                    :data="studentList"
+                    @row-click="studentSelect">
+                <el-table-column property="studentName" label="学生姓名"></el-table-column>
+                <el-table-column property="studentId" label="学生学号"></el-table-column>
+            </el-table>
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :current-page="current"
+                    :page-size="size"
+                    style="margin-top: 15px"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
+        </el-dialog>
 
     </div>
 </template>
@@ -82,249 +114,107 @@
     export default {
         data() {
             return {
-                video: null,
-                screenshotCanvas: null,
-                uploadLock: true, // 上传锁
-                image: '',
-                data: [
-                    {
-                        id: 1,
-                        label: '信息学院',
-                        children: [{
-                            id: 4,
-                            label: '软件工程',
-                            children: [{
-                                id: 9,
-                                label: '2018软件工程1班'
-                            }, {
-                                id: 10,
-                                label: '2018软件工程2班'
-                            }]
-                        }]
-                    }, {
-                        id: 2,
-                        label: '金融学院',
-                        children: [{
-                            id: 5,
-                            label: '二级 2-1'
-                        }, {
-                            id: 6,
-                            label: '二级 2-2'
-                        }]
-                    }, {
-                        id: 3,
-                        label: '一级 3',
-                        children: [{
-                            id: 7,
-                            label: '二级 3-1'
-                        }, {
-                            id: 8,
-                            label: '二级 3-2'
-                        }]
-                    }],
+                filterText: '',
+
+                collegeClassTree: [],
+
                 defaultProps: {
                     children: 'children',
                     label: 'label'
                 },
-                form: {
-                    name: '',
-                    region: '',
-                    date1: '',
-                    date2: '',
-                    delivery: false,
-                    type: [],
-                    resource: '',
-                    desc: ''
+
+                video: null,
+                screenshotCanvas: null,
+                uploadLock: true, // 上传锁
+                image: '',
+
+                studentForm: {
+                    studentName: '',
+                    studentId: '',
+                    nowTime: ''
+                },
+                formRules:{
+                    studentId: [
+                        {required: true, message: '请输入11位学号', trigger: 'blur'},
+                        {min: 11, max: 11, message: '请输入11位学号', trigger: 'blur'}
+                    ],
+                    studentName: [
+                        {required: true, message: '请输入姓名', trigger: 'blur'},
+                        {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
+                    ],
+                    nowTime: [
+                        {required: true, message: '请选择日期', trigger: 'blur'}
+                    ],
                 },
                 value: [],
-                options: [{
-                    value: 'zhinan',
-                    label: '指南',
-                    children: [{
-                        value: 'shejiyuanze',
-                        label: '设计原则',
-                        children: [{
-                            value: 'yizhi',
-                            label: '一致'
-                        }, {
-                            value: 'fankui',
-                            label: '反馈'
-                        }, {
-                            value: 'xiaolv',
-                            label: '效率'
-                        }, {
-                            value: 'kekong',
-                            label: '可控'
-                        }]
-                    }, {
-                        value: 'daohang',
-                        label: '导航',
-                        children: [{
-                            value: 'cexiangdaohang',
-                            label: '侧向导航'
-                        }, {
-                            value: 'dingbudaohang',
-                            label: '顶部导航'
-                        }]
-                    }]
-                }, {
-                    value: 'zujian',
-                    label: '组件',
-                    children: [{
-                        value: 'basic',
-                        label: 'Basic',
-                        children: [{
-                            value: 'layout',
-                            label: 'Layout 布局'
-                        }, {
-                            value: 'color',
-                            label: 'Color 色彩'
-                        }, {
-                            value: 'typography',
-                            label: 'Typography 字体'
-                        }, {
-                            value: 'icon',
-                            label: 'Icon 图标'
-                        }, {
-                            value: 'button',
-                            label: 'Button 按钮'
-                        }]
-                    }, {
-                        value: 'form',
-                        label: 'Form',
-                        children: [{
-                            value: 'radio',
-                            label: 'Radio 单选框'
-                        }, {
-                            value: 'checkbox',
-                            label: 'Checkbox 多选框'
-                        }, {
-                            value: 'input',
-                            label: 'Input 输入框'
-                        }, {
-                            value: 'input-number',
-                            label: 'InputNumber 计数器'
-                        }, {
-                            value: 'select',
-                            label: 'Select 选择器'
-                        }, {
-                            value: 'cascader',
-                            label: 'Cascader 级联选择器'
-                        }, {
-                            value: 'switch',
-                            label: 'Switch 开关'
-                        }, {
-                            value: 'slider',
-                            label: 'Slider 滑块'
-                        }, {
-                            value: 'time-picker',
-                            label: 'TimePicker 时间选择器'
-                        }, {
-                            value: 'date-picker',
-                            label: 'DatePicker 日期选择器'
-                        }, {
-                            value: 'datetime-picker',
-                            label: 'DateTimePicker 日期时间选择器'
-                        }, {
-                            value: 'upload',
-                            label: 'Upload 上传'
-                        }, {
-                            value: 'rate',
-                            label: 'Rate 评分'
-                        }, {
-                            value: 'form',
-                            label: 'Form 表单'
-                        }]
-                    }, {
-                        value: 'data',
-                        label: 'Data',
-                        children: [{
-                            value: 'table',
-                            label: 'Table 表格'
-                        }, {
-                            value: 'tag',
-                            label: 'Tag 标签'
-                        }, {
-                            value: 'progress',
-                            label: 'Progress 进度条'
-                        }, {
-                            value: 'tree',
-                            label: 'Tree 树形控件'
-                        }, {
-                            value: 'pagination',
-                            label: 'Pagination 分页'
-                        }, {
-                            value: 'badge',
-                            label: 'Badge 标记'
-                        }]
-                    }, {
-                        value: 'notice',
-                        label: 'Notice',
-                        children: [{
-                            value: 'alert',
-                            label: 'Alert 警告'
-                        }, {
-                            value: 'loading',
-                            label: 'Loading 加载'
-                        }, {
-                            value: 'message',
-                            label: 'Message 消息提示'
-                        }, {
-                            value: 'message-box',
-                            label: 'MessageBox 弹框'
-                        }, {
-                            value: 'notification',
-                            label: 'Notification 通知'
-                        }]
-                    }, {
-                        value: 'navigation',
-                        label: 'Navigation',
-                        children: [{
-                            value: 'menu',
-                            label: 'NavMenu 导航菜单'
-                        }, {
-                            value: 'tabs',
-                            label: 'Tabs 标签页'
-                        }, {
-                            value: 'breadcrumb',
-                            label: 'Breadcrumb 面包屑'
-                        }, {
-                            value: 'dropdown',
-                            label: 'Dropdown 下拉菜单'
-                        }, {
-                            value: 'steps',
-                            label: 'Steps 步骤条'
-                        }]
-                    }, {
-                        value: 'others',
-                        label: 'Others',
-                        children: [{
-                            value: 'dialog',
-                            label: 'Dialog 对话框'
-                        }, {
-                            value: 'tooltip',
-                            label: 'Tooltip 文字提示'
-                        }, {
-                            value: 'popover',
-                            label: 'Popover 弹出框'
-                        }, {
-                            value: 'card',
-                            label: 'Card 卡片'
-                        }, {
-                            value: 'carousel',
-                            label: 'Carousel 走马灯'
-                        }, {
-                            value: 'collapse',
-                            label: 'Collapse 折叠面板'
-                        }]
-                    }]
-                }]
+                studentDig: false,
+                studentList: [],
+
+                total: 0,
+                size: 10,
+                current: 1,
+
+                searchForm: {},
             }
+        },
+        created() {
+            this.getClassTree()
         },
         mounted() {
             // this.init()
         },
+        watch: {
+            filterText(val) {
+                this.$refs.tree.filter(val);
+            }
+        },
         methods: {
+            getClassTree() {
+                this.$axios.get("/mem/stu/getcctree").then(res => {
+                    this.collegeClassTree = res.data.data
+                })
+            },
+
+            filterNode(value, data) {
+                if (!value) return true;
+                return data.label.indexOf(value) !== -1;
+            },
+            handleNodeClick(data) {
+                if(data.type == 2) {
+                    this.searchForm.classId = data.id
+                    this.getClassStudentList()
+                }
+
+            },
+
+            getClassStudentList() {
+                this.$axios.get("/mem/stu/getClassStuList", {
+                    params: {
+                        studentName: this.searchForm.studentName,
+                        classId: this.searchForm.classId,
+                        current: this.current,
+                        size: this.size
+                    }
+                }).then(res => {
+                    this.studentDig = true
+                    this.studentList = res.data.data.records
+                    this.total = res.data.data.total
+                })
+            },
+            handleSizeChange(val) {
+                this.size = val
+                this.getClassStudentList()
+            },
+            handleCurrentChange(val) {
+                this.current = val
+                console.log(this.current)
+                this.getClassStudentList()
+            },
+            studentSelect(row, column,event) {
+                this.studentForm = row
+                this.studentDig = false
+            },
+
             // 初始化设置
             init() {
                 this.video = document.getElementById('video');
@@ -342,6 +232,8 @@
                     camera: true
                 });
 
+                this.video.srcObject = window.stream;
+
                 let _this = this;
                 tracker.on('track', function(event) {
 
@@ -355,6 +247,17 @@
                         _this.uploadLock && _this.screenshotAndUpload();
                     });
                 });
+            },
+
+            stopMediaStreamTrack() {
+                console.log(typeof window.stream)
+
+                if (typeof(window.stream) === "object") {
+                    //	this.videoEl是视频流容器，也就是video标签，需要在data中声明这个变量，然后在打开摄像头的方法中this.videoEl.srcObject = window.stream
+                    this.video.srcObject = null;
+                    console.log(window.stream.getTracks())
+                    window.stream.getTracks().forEach(track => track.stop());
+                }
             },
 
             // 上传图片
@@ -381,28 +284,33 @@
             // 上传人脸数据，同一个人返回true，否则返回false
             uploadFaceImg(base64Img) {
                 let uploadForm = {
-                    username: '18251104126',
+                    username: '18251104129',
                     nowimage: base64Img
                 }
                 console.log(uploadForm.nowimage)
                 this.$axios.post('/attendance/recognize', uploadForm ).then(res => {
                     if(res.data.code === 200) {
-                        this.$notify({
-                            showClose: true,
-                            message: res.data.msg,
-                            type: 'success'
-                        });
+                        if(res.data.msg == '同一个人') {
+                            this.$notify({
+                                showClose: true,
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                        } else {
+                            this.$notify({
+                                showClose: true,
+                                message: res.data.msg,
+                                type: 'error'
+                            });
+                        }
                     }
-                    this.sleep(1000)
+                    this.sleep(2000)
                     this.uploadLock = true
-
 
                 })
                 // this.screenshotAndUpload()
             },
-            handleNodeClick(data) {
-                console.log(data);
-            },
+
             sleep(numberMillis){
                 var now = new Date();
                 var exitTime = now.getTime() + numberMillis;
@@ -431,7 +339,6 @@
         width: 100%;
         border: #000000  2px dashed;
     }
-    
 
 
     .canvas-show {
@@ -444,6 +351,10 @@
         width: 100%;
         height: 190px;
         border: #a8c023 2px dashed;
+    }
+
+    .handle-box {
+        margin-bottom: 0px;
     }
 
 </style>
