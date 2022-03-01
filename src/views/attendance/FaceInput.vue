@@ -24,94 +24,65 @@
                         <el-form-item label="学生学号" prop="studentId">
                             <el-input v-model="studentForm.studentId"></el-input>
                         </el-form-item>
-                        <el-form-item label="考勤时间" prop="nowTime">
-                            <el-date-picker
-                                    v-model="studentForm.nowTime"
-                                    type="datetime"
-                                    placeholder="选择日期时间">
-                            </el-date-picker>
-                        </el-form-item>
                         <el-form-item>
                             <el-button type="success" @click="init">立即考勤</el-button>
-                            <el-button @click="stopMediaStreamTrack">取 消</el-button>
+                            <el-button type="warning" @click="checkStuSelect">人脸录入</el-button>
                         </el-form-item>
                     </el-form>
                 </el-col>
                 <el-col :xs="24" :sm="24" :md="24"  :lg="10" :xl="10" style="margin-bottom: 15px">
-                    <el-row class="face-box">
 
-                        <el-card class="video-box">
-                            <div class="handle-box">
-                                <el-form :inline="true">
-                                    <el-form-item>
-                                        <el-button type="warning" @click="openCamera">开启摄像头</el-button>
-                                    </el-form-item>
-                                    <el-form-item>
-                                        <el-button type="info" @click="stopMediaStreamTrack">关闭摄像头</el-button>
-                                    </el-form-item>
-                                    <el-form-item>
-                                        <el-button id="snap" type="success" @click="getImg">截取图像</el-button>
-                                    </el-form-item>
-                                </el-form>
-
-
-
-
-                            </div>
-                            <div slot="header" class="clearfix">
-                                <span>获取人脸</span>
-                            </div>
-                            <video  ref="video"></video>
-                        </el-card>
-                    </el-row>
                 </el-col>
             </el-row>
 
         </el-card>
 
-        <el-dialog title="请确认人员数据" :visible.sync="canvasShotDig" width="400">
-            <el-card>
-                <div slot="header" class="clearfix">
-                    <span>人脸截图及人员信息</span>
-                </div>
-                <el-row>
-                    <el-col span="12">
-                        <canvas width="300" height="200" ref="canvas"></canvas>
-                    </el-col>
-                    <el-col span="12">
-                        <el-form ref="studentForm" :model="studentForm" label-width="80px" :rules="formRules">
-                            <el-form-item label="学生姓名" prop="studentName">
-                                <el-input v-model="studentForm.studentName"></el-input>
-                            </el-form-item>
-                            <el-form-item label="学生学号" prop="studentId">
-                                <el-input v-model="studentForm.studentId"></el-input>
-                            </el-form-item>
-                            <el-form-item label="考勤时间" prop="nowTime">
-                                <el-date-picker
-                                        v-model="studentForm.nowTime"
-                                        type="datetime"
-                                        placeholder="选择日期时间">
-                                </el-date-picker>
-                            </el-form-item>
-                            <el-form-item>
-                                <el-button type="success" @click="init">立即考勤</el-button>
-                                <el-button @click="stopMediaStreamTrack">取 消</el-button>
-                            </el-form-item>
-                        </el-form>
-                    </el-col>
-                </el-row>
-            </el-card>
+        <el-dialog title="学生名单" :visible.sync="studentDig" width="400">
+            <div class="handle-box">
+                <el-form :inline="true">
+                    <el-form-item>
+                        <el-input
+                                v-model="searchForm.studentName"
+                                placeholder="查找学生姓名"
+                                clearable
+                        >
+                        </el-input>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button icon="el-icon-search" @click="getClassStudentList">搜索</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <el-table
+                    :data="studentList"
+                    @row-click="studentSelect">
+                <el-table-column property="studentName" label="学生姓名"></el-table-column>
+                <el-table-column property="studentId" label="学生学号"></el-table-column>
+            </el-table>
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :current-page="current"
+                    :page-size="size"
+                    style="margin-top: 15px"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
         </el-dialog>
+        <FaceUploadDrawer :faceDrawer.sync="faceDrawer" :studentForm.sync="studentForm"></FaceUploadDrawer>
 
     </div>
 </template>
 
 <script>
+    import FaceUploadDrawer from "./FaceUploadDrawer";
     export default {
         name: "FaceInput",
+        components: {FaceUploadDrawer},
         data() {
             return {
-                vaido: null,
                 filterText: '',
 
                 collegeClassTree: [],
@@ -145,7 +116,11 @@
 
                 searchForm: {},
 
-                canvasShotDig: false
+                canvasShotDig: false,
+
+                studentDig: false,
+                studentList: [],
+                faceDrawer: false
 
             };
         },
@@ -178,104 +153,53 @@
                 }
 
             },
-
-            openCamera(){
-                this.$nextTick(() => {
-                    var video = this.$refs.video;
-                    this.video = video;
-                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                        navigator.mediaDevices
-                            .getUserMedia({
-                                video: true
-                            })
-                            .then(function(stream) {
-                                MediaStreamTrack =
-                                    typeof stream.stop === "function"
-                                        ? stream
-                                        : stream.getTracks()[1];
-                                video.srcObject = stream;
-                                window.stream = stream;
-                                video.play();
-                            })
-                            .catch(function(err) {
-                                // console.log(err);
-                            });
-                    } else if (navigator.getMedia) {
-                        navigator
-                            .getMedia({
-                                video: true
-                            })
-                            .then(function(stream) {
-                                console.log(stream);
-                                MediaStreamTrack = stream.getTracks()[1];
-                                video.src = window.webkitURL.createObjectURL(stream);
-                                video.play();
-                            })
-                            .catch(function(err) {
-                                console.log(err);
-                            });
+            getClassStudentList() {
+                this.$axios.get("/mem/stu/getClassStuList", {
+                    params: {
+                        studentName: this.searchForm.studentName,
+                        classId: this.searchForm.classId,
+                        current: this.current,
+                        size: this.size
                     }
-                });
+                }).then(res => {
+                    this.studentDig = true
+                    this.studentList = res.data.data.records
+                    this.total = res.data.data.total
+                })
             },
-
-            stopMediaStreamTrack() {
-
-                if (typeof(window.stream) === "object") {
-                    //	this.videoEl是视频流容器，也就是video标签，需要在data中声明这个变量，然后在打开摄像头的方法中this.videoEl.srcObject = window.stream
-                    this.video.srcObject = null;
-                    window.stream.getTracks().forEach(track => track.stop());
+            handleSizeChange(val) {
+                this.size = val
+                this.getClassStudentList()
+            },
+            handleCurrentChange(val) {
+                this.current = val
+                console.log(this.current)
+                this.getClassStudentList()
+            },
+            studentSelect(row, column,event) {
+                this.studentForm = row
+                this.studentDig = false
+            },
+            checkStuSelect() {
+                if(this.studentForm.studentName == '' || this.studentForm.studentId == '') {
+                    this.$notify({
+                        title: '提示',
+                        message: '请先选择学生',
+                        type: 'error'
+                    })
                 }
-            },
-
-            //canvas中展示截取的图像
-            getImg() {
-                this.canvasShotDig = true;
-                var canvas = this.$refs.canvas;
-                var context = canvas.getContext("2d");
-                context.drawImage(this.video, 0, 0, 270, 200);
-                var image = canvas.toDataURL("image/png");
-                var timestamp = Date.parse(new Date());//获取时间戳，防止图像重名
-                var img = this.dataURLtoFile(image, timestamp+".png");//使用png的图像进行名称拼接
-
-                var formData = new FormData();
-                formData.append("file",img); //将生成的图像生成file文件对象
-
-
-
-                // //上传图片的接口与后端进行交互，获取图片
-                // uploadImg(formData ).then(res => {
-                //     this.imageUrl = res.data.message.url
-                // });
-            },
-
-            //图片转base64位
-            dataURLtoFile(dataurl, filename) {
-                var arr = dataurl.split(","),
-                    mime = arr[0].match(/:(.*?);/)[1],
-                    bstr = atob(arr[1]),
-                    n = bstr.length,
-                    u8arr = new Uint8Array(n);
-                while (n--) {
-                    u8arr[n] = bstr.charCodeAt(n);
+                else {
+                    this.faceDrawer = true
                 }
-                var file = new File([u8arr], filename, { type: mime });
-                return new File([u8arr], filename, { type: mime });
-            },
+            }
+
+
         }
     }
 </script>
 
 <style scoped>
-    .video-box {
-        position: relative;
-        width: 100%;
-    }
-    video{
-        top: 0;
-        left: 0;
-        width: 100%;
-        border: #000000  2px dashed;
-    }
+
     .handle-box {
 
     }
