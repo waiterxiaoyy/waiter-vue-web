@@ -137,7 +137,6 @@
 
 
             handleUploadSuccess(res, file, fileList) {
-              console.log("myres", res)
                 if(res.code == 200) {
                     this.$notify({
                         title: '提示',

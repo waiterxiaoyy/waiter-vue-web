@@ -17,12 +17,12 @@
                     </el-tree>
                 </el-col>
                 <el-col :xs="24" :sm="24" :md="24"  :lg="8" :xl="8" style="margin-bottom: 15px">
-                    <el-form ref="studentForm" :model="studentForm" label-width="80px" :rules="formRules">
+                    <el-form ref="studentForm" :model="studentForm" label-width="80px">
                         <el-form-item label="学生姓名" prop="studentName">
-                            <el-input v-model="studentForm.studentName"></el-input>
+                            <el-input v-model="studentForm.studentName" :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item label="学生学号" prop="studentId">
-                            <el-input v-model="studentForm.studentId"></el-input>
+                            <el-input v-model="studentForm.studentId" :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="success" @click="init">立即考勤</el-button>
@@ -31,7 +31,31 @@
                     </el-form>
                 </el-col>
                 <el-col :xs="24" :sm="24" :md="24"  :lg="10" :xl="10" style="margin-bottom: 15px">
+                    <el-alert
+                            :closable="false"
+                            title="学生人脸数据"
+                            type="warning"
+                            description="如需更换或者新增人脸数据，请点击左方的人脸录入"
+                            style="margin-bottom: 10px">
+                    </el-alert>
+                    <el-image
+                        style="width: 350px; height: 350px"
+                        :src="faceUrl" >
+                        <div slot="placeholder" class="image-slot">
+                            拼命加载中<span class="dot">...</span>
+                        </div>
 
+
+                        <div slot="error" class="image-slot">
+                            <el-alert
+                                    title="暂无人脸数据"
+                                    type="error"
+                                    :closable="false"
+                                    show-icon>
+                            </el-alert>
+
+                        </div>
+                    </el-image>
                 </el-col>
             </el-row>
 
@@ -120,7 +144,8 @@
 
                 studentDig: false,
                 studentList: [],
-                faceDrawer: false
+                faceDrawer: false,
+                faceUrl: 'http://localhost:8081/localPath/1646235104000.png'
 
             };
         },
@@ -178,6 +203,7 @@
             },
             studentSelect(row, column,event) {
                 this.studentForm = row
+                this.getStuFace()
                 this.studentDig = false
             },
             checkStuSelect() {
@@ -185,12 +211,20 @@
                     this.$notify({
                         title: '提示',
                         message: '请先选择学生',
-                        type: 'error'
+                        type: 'warning'
                     })
                 }
                 else {
                     this.faceDrawer = true
                 }
+            },
+            async getStuFace() {
+                const{data: res } = await this.$axios.get('attendance/getStuFace/'+this.studentForm.studentId)
+
+                if(res.code == 200) {
+                    this.faceUrl = res.data.faceUrl
+                }
+
             }
 
 
@@ -202,6 +236,12 @@
 
     .handle-box {
 
+    }
+
+    .image-none {
+        font-size: larger;
+        text-align: center;
+        font-weight: bolder;
     }
 
 </style>

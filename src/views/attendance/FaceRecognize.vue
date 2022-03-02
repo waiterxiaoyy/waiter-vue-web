@@ -17,9 +17,12 @@
                    </el-tree>
                </el-col>
                <el-col :xs="24" :sm="24" :md="24"  :lg="8" :xl="8" style="margin-bottom: 15px">
+                   <div class="form-tip">
+                       您可以在班级名单中选取一名学生，也可以手动输入学生信息进行考勤，但输入学生信息需保证正确
+                   </div>
                    <el-form ref="studentForm" :model="studentForm" label-width="80px" :rules="formRules">
                        <el-form-item label="学生姓名" prop="studentName">
-                           <el-input v-model="studentForm.studentName"></el-input>
+                           <el-input v-model="studentForm.studentName" ></el-input>
                        </el-form-item>
                        <el-form-item label="学生学号" prop="studentId">
                            <el-input v-model="studentForm.studentId"></el-input>
@@ -355,6 +358,16 @@
 
     .handle-box {
         margin-bottom: 0px;
+    }
+
+    .form-tip {
+        text-align: left;
+        color: #000000;
+        padding: 8px 16px;
+        background-color: #ecf8ff;
+        border-radius: 4px;
+        border-left: 8px solid #50bfff;
+        margin: 5px 10px 10px 10px;
     }
 
 </style>

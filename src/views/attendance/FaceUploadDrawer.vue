@@ -40,16 +40,16 @@
                     <div class="shot-tip">
                         请确认学生信息
                     </div>
-                    <el-form ref="studentForm" :model="studentForm" label-width="80px" style="margin-right: 10px" :rules="formRules">
+                    <el-form ref="studentForm" :model="studentForm" label-width="80px" style="margin-right: 10px">
                         <el-form-item label="学生姓名" prop="studentName">
-                            <el-input v-model="studentForm.studentName"></el-input>
+                            <el-input v-model="studentForm.studentName" :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item label="学生学号" prop="studentId">
-                            <el-input v-model="studentForm.studentId"></el-input>
+                            <el-input v-model="studentForm.studentId" :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="success" @click="init">上传人脸数据</el-button>
-                            <el-button @click="stopMediaStreamTrack">取 消</el-button>
+                            <el-button type="success" @click="saveFace">上传人脸数据</el-button>
+                            <el-button @click="handleClose">取 消</el-button>
                         </el-form-item>
                     </el-form>
                 </el-col>
@@ -72,21 +72,11 @@
         data() {
             return {
                 video: null,
-                formRules:{
-                    studentId: [
-                        {required: true, message: '请输入11位学号', trigger: 'blur'},
-                        {min: 11, max: 11, message: '请输入11位学号', trigger: 'blur'}
-                    ],
-                    studentName: [
-                        {required: true, message: '请输入姓名', trigger: 'blur'},
-                        {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
-                    ],
-                    nowTime: [
-                        {required: true, message: '请选择日期', trigger: 'blur'}
-                    ],
-                },
 
+                context: {},
                 openSta: false,
+
+                faceImg: null,
 
             }
         },
@@ -96,10 +86,11 @@
                     this.$notify({
                         title: '提示',
                         message: '请先关闭摄像头',
-                        type: 'error'
+                        type: 'warning'
                     })
                     return
                 }
+                this.resetCanvas();
                 this.$emit('update:faceDrawer', false)
             },
 
@@ -155,23 +146,18 @@
 
             //canvas中展示截取的图像
             getImg() {
-                this.canvasShotDig = true;
-                var canvas = this.$refs.canvas;
-                var context = canvas.getContext("2d");
-                context.drawImage(this.video, 0, 0, 380, 280);
+                const canvas = this.$refs.canvas;
+                this.context = canvas.getContext("2d");
+                this.context.drawImage(this.video, 0, 0, 380, 280);
                 var image = canvas.toDataURL("image/png");
                 var timestamp = Date.parse(new Date());//获取时间戳，防止图像重名
                 var img = this.dataURLtoFile(image, timestamp+".png");//使用png的图像进行名称拼接
 
-                var formData = new FormData();
-                formData.append("file",img); //将生成的图像生成file文件对象
+                this.faceImg = img
+            },
 
-
-
-                // //上传图片的接口与后端进行交互，获取图片
-                // uploadImg(formData ).then(res => {
-                //     this.imageUrl = res.data.message.url
-                // });
+            resetCanvas() {
+                this.context.clearRect(0, 0, 380, 280)
             },
 
             //图片转base64位
@@ -187,6 +173,51 @@
                 var file = new File([u8arr], filename, { type: mime });
                 return new File([u8arr], filename, { type: mime });
             },
+
+            async saveFace() {
+
+                if(this.studentForm.studentId == undefined || this.studentForm.studentId == '' || this.studentForm.studentId == null) {
+                    this.$notify({
+                        title: '提示',
+                        message: '请先选择学生',
+                        type: 'error'
+                    })
+                    return;
+                }
+                if(this.faceImg == null || this.faceImg == '') {
+                    this.$notify({
+                        title: '提示',
+                        message: '请先截取人脸头像',
+                        type: 'error'
+                    })
+                    return;
+                }
+
+                var formData = new FormData();
+
+                formData.append("file", this.faceImg); //将生成的图像生成file文件对象
+                formData.append("studentId", this.studentForm.studentId)
+
+                const {data: res } = await this.$axios.post('attendance/saveFace', formData)
+
+                if(res.code == 200) {
+                    this.$notify({
+                        title: '提示',
+                        message: '人脸数据录入成功',
+                        type: 'success'
+                    })
+                    // this.stopMediaStreamTrack();
+                    // this.resetCanvas();
+                    // this.handleClose()
+                } else {
+                    this.$notify({
+                        title: '提示',
+                        message: '人脸数据录入失败，请重新录入',
+                        type: 'error'
+                    })
+                }
+
+            }
         }
     }
 </script>
