@@ -25,7 +25,6 @@
                             <el-input v-model="studentForm.studentId" :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="success" @click="init">立即考勤</el-button>
                             <el-button type="warning" @click="checkStuSelect">人脸录入</el-button>
                         </el-form-item>
                     </el-form>
@@ -38,13 +37,14 @@
                             description="如需更换或者新增人脸数据，请点击左方的人脸录入"
                             style="margin-bottom: 10px">
                     </el-alert>
-                    <el-image
+                    <el-avatar
                         style="width: 350px; height: 350px"
+                        shape="square"
                         :src="faceUrl" >
+
                         <div slot="placeholder" class="image-slot">
                             拼命加载中<span class="dot">...</span>
                         </div>
-
 
                         <div slot="error" class="image-slot">
                             <el-alert
@@ -53,9 +53,8 @@
                                     :closable="false"
                                     show-icon>
                             </el-alert>
-
                         </div>
-                    </el-image>
+                    </el-avatar>
                 </el-col>
             </el-row>
 
@@ -95,7 +94,7 @@
                     :total="total">
             </el-pagination>
         </el-dialog>
-        <FaceUploadDrawer :faceDrawer.sync="faceDrawer" :studentForm.sync="studentForm"></FaceUploadDrawer>
+        <FaceUploadDrawer :faceDrawer.sync="faceDrawer" :studentForm.sync="studentForm" @getStuFace="getStuFace"></FaceUploadDrawer>
 
     </div>
 </template>
@@ -145,7 +144,7 @@
                 studentDig: false,
                 studentList: [],
                 faceDrawer: false,
-                faceUrl: 'http://localhost:8081/localPath/1646235104000.png'
+                faceUrl: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png'
 
             };
         },
@@ -222,7 +221,7 @@
                 const{data: res } = await this.$axios.get('attendance/getStuFace/'+this.studentForm.studentId)
 
                 if(res.code == 200) {
-                    this.faceUrl = res.data.faceUrl
+                    this.faceUrl = this.$MyComm.baseURL + res.data.faceUrl
                 }
 
             }

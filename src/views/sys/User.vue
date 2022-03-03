@@ -31,13 +31,27 @@
                 :data="tableData"
                 tooltip-effect="dark"
                 style="width: 100%"
-                border
                 stripe
                 @selection-change="handleSelectionChange">
 
             <el-table-column
                     type="selection"
                     width="55">
+            </el-table-column>
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="创建时间">
+                            <span>{{ props.row.created }}</span>
+                        </el-form-item>
+                        <el-form-item label="修改时间">
+                            <span>{{ props.row.updated }}</span>
+                        </el-form-item>
+                        <el-form-item label="最近登录时间">
+                            <span>{{ props.row.lastLogin }}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
             </el-table-column>
 
             <el-table-column
@@ -71,15 +85,15 @@
 
             <el-table-column
                     prop="code"
-                    label="角色名称" width="250">
+                    label="角色名称" width="180">
                 <template slot-scope="scope">
-                    <el-tag size="small" type="warning" v-for="item in scope.row.sysRoles" :key="item" style="margin-right:2px">{{item.name}}</el-tag>
+                    <el-tag size="small" type="warning" v-for="item in scope.row.sysRoles" :key="item" style="margin-right:2px;margin-top: 2px;">{{item.name}}</el-tag>
                 </template>
 
             </el-table-column>
             <el-table-column
                     prop="email"
-                    label="邮箱" width="130">
+                    label="邮箱" width="140">
             </el-table-column>
             <el-table-column
                     prop="zzstatus"
@@ -95,24 +109,7 @@
                 </template>
 
             </el-table-column>
-            <el-table-column
-                    prop="created"
-                    width="200"
-                    label="创建时间"
-            >
-            </el-table-column>
-            <el-table-column
-                    prop="updated"
-                    width="200"
-                    label="修改时间"
-            >
-            </el-table-column>
-            <el-table-column
-                    prop="lastLogin"
-                    width="200"
-                    label="最近登录时间"
-            >
-            </el-table-column>
+
             <el-table-column
                     prop="icon"
                     width="260px"
@@ -324,7 +321,7 @@
                                 this.getUserList()
                                 this.$notify({
                                     showClose: true,
-                                    message: '恭喜你，操作成功',
+                                    message: '操作成功',
                                     type: 'success',
                                 });
 
@@ -358,7 +355,7 @@
                     this.getUserList()
                     this.$notify({
                         showClose: true,
-                        message: '恭喜你，操作成功',
+                        message: '删除成功',
                         type: 'success'
                     });
                 })
@@ -386,7 +383,7 @@
                     this.getUserList()
                     this.$notify({
                         showClose: true,
-                        message: '恭喜你，操作成功',
+                        message: '更新成功',
                         type: 'success'
                     });
 
@@ -404,7 +401,7 @@
                         this.getUserList()
                         this.$notify({
                             showClose: true,
-                            message: '恭喜你，操作成功',
+                            message: '重置密码成功',
                             type: 'success'
                         });
                     })
@@ -414,7 +411,7 @@
     }
 </script>
 
-<style scoped>
+<style>
 
     .handle-box {
         margin-bottom: 20px;
@@ -424,5 +421,18 @@
     /*    float: right;*/
     /*    margin-top: 5px;*/
     /*}*/
+
+    .demo-table-expand {
+        font-size: 0;
+    }
+    .demo-table-expand label {
+        width: 100px;
+        color: #99a9bf;
+    }
+    .demo-table-expand .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: 50%;
+    }
 
 </style>

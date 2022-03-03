@@ -56,7 +56,6 @@
                     <el-table
                             ref="multipleTable"
                             :data="tableData"
-                            border
                             stripe
                             style="width: 100%"
                             @selection-change="handleSelectionChange">

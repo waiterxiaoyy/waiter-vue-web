@@ -7,7 +7,7 @@
             background-color="#324157"
             text-color="#bfcbd9"
             active-text-color="#ffd04b"
-            unique-opened
+            :unique-opened="true"
             router
         >
             <template v-for="item in menuList">
@@ -24,7 +24,7 @@
                                 :key="subItem.index"
                             >
                                 <template slot="title">
-                                    <i class="el-icon-menu"></i>
+                                    <i :class="subItem.icon"></i>
                                     <span slot="title">{{ subItem.title }}</span>
                                 </template>
 <!--                                <el-menu-item-->
@@ -37,7 +37,8 @@
                                 v-else
                                 :index="subItem.path"
                                 :key="subItem.index"
-                            >{{ subItem.title }}</el-menu-item>
+                            ><i :class="subItem.icon"></i>
+                                <span slot="title">{{ subItem.title }}</span></el-menu-item>
                         </template>
                     </el-submenu>
                 </template>

@@ -92,6 +92,7 @@
                 }
                 this.resetCanvas();
                 this.$emit('update:faceDrawer', false)
+                this.$emit("getStuFace", "")
             },
 
             openCamera(){

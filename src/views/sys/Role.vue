@@ -1,104 +1,136 @@
 <template>
     <div class="container">
-        <div class="handle-box">
-            <el-form :inline="true">
-                <el-form-item>
-                    <el-input
-                            v-model="searchForm.name"
-                            placeholder="名称"
-                            clearable
-                    >
-                    </el-input>
-                </el-form-item>
+        <el-row :gutter="25">
 
-                <el-form-item>
-                    <el-button @click="getRoleList" icon="el-icon-search">搜索</el-button>
-                </el-form-item>
+            <el-col span="16">
+                <el-card
+                        shadow="never">
+                    <div class="handle-box">
+                        <el-form :inline="true">
+                            <el-form-item>
+                                <el-input
+                                        v-model="searchForm.name"
+                                        placeholder="名称"
+                                        clearable
+                                >
+                                </el-input>
+                            </el-form-item>
 
-                <el-form-item>
-                    <el-button type="primary" @click="dialogVisible = true" icon="el-icon-circle-plus-outline">新增</el-button>
-                </el-form-item>
-                <el-form-item>
-                    <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
-                        <el-button type="danger" slot="reference" icon="el-icon-error" :disabled="delBtlStatu">批量删除</el-button>
-                    </el-popconfirm>
-                </el-form-item>
-            </el-form>
-        </div>
+                            <el-form-item>
+                                <el-button @click="getRoleList" icon="el-icon-search">搜索</el-button>
+                            </el-form-item>
 
-
-        <el-table
-                ref="multipleTable"
-                :data="tableData"
-                tooltip-effect="dark"
-                style="width: 100%"
-                border
-                stripe
-                @selection-change="handleSelectionChange">
-
-            <el-table-column
-                    type="selection"
-                    width="55">
-            </el-table-column>
-
-            <el-table-column
-                    prop="name"
-                    label="名称"
-                    width="120">
-            </el-table-column>
-            <el-table-column
-                    prop="code"
-                    label="唯一编码"
-                    show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column
-                    prop="remark"
-                    label="描述"
-                    show-overflow-tooltip>
-            </el-table-column>
-
-            <el-table-column
-                    prop="statu"
-                    label="状态">
-                <template slot-scope="scope">
-                    <el-tag size="small" v-if="scope.row.statu === 1" type="success">正常</el-tag>
-                    <el-tag size="small" v-else-if="scope.row.statu === 0" type="danger">禁用</el-tag>
-                </template>
-
-            </el-table-column>
-            <el-table-column
-                    prop="icon"
-                    label="操作">
-
-                <template slot-scope="scope">
-                    <el-button type="text" @click="permHandle(scope.row.id)">分配权限</el-button>
-                    <el-divider direction="vertical"></el-divider>
-
-                    <el-button type="text" @click="editHandle(scope.row.id)">编辑</el-button>
-                    <el-divider direction="vertical"></el-divider>
-
-                    <template>
-                        <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="delHandle(scope.row.id)">
-                            <el-button type="text" slot="reference">删除</el-button>
-                        </el-popconfirm>
-                    </template>
-
-                </template>
-            </el-table-column>
-
-        </el-table>
+                            <el-form-item>
+                                <el-button type="primary" v-if="hasAuth('sys:role:save')" @click="dialogVisible = true" icon="el-icon-circle-plus-outline">新增</el-button>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
+                                    <el-button v-if="hasAuth('sys:role:delete')" type="danger"  slot="reference" icon="el-icon-error" :disabled="delBtlStatu">批量删除</el-button>
+                                </el-popconfirm>
+                            </el-form-item>
+                        </el-form>
+                    </div>
 
 
-        <el-pagination
-                style="margin-top: 20px"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                layout="total, sizes, prev, pager, next, jumper"
-                :page-sizes="[10, 20, 50, 100]"
-                :current-page="current"
-                :page-size="size"
-                :total="total">
-        </el-pagination>
+                    <el-table
+                            ref="multipleTable"
+                            :data="tableData"
+                            tooltip-effect="dark"
+                            style="width: 100%"
+                            @row-click="roleSelect"
+                            @selection-change="handleSelectionChange">
+
+                        <el-table-column
+                                type="selection"
+                                width="55">
+                        </el-table-column>
+
+                        <el-table-column
+                                prop="name"
+                                label="名称"
+                                width="120">
+                        </el-table-column>
+                        <el-table-column
+                                prop="code"
+                                label="唯一编码"
+                                width="110"
+                                show-overflow-tooltip>
+                        </el-table-column>
+                        <el-table-column
+                                prop="remark"
+                                label="描述"
+                                width="210"
+                                show-overflow-tooltip>
+                        </el-table-column>
+
+                        <el-table-column
+                                prop="statu"
+                                width="80"
+                                label="状态">
+                            <template slot-scope="scope">
+                                <el-tag size="small" v-if="scope.row.statu === 1" type="success">正常</el-tag>
+                                <el-tag size="small" v-else-if="scope.row.statu === 0" type="danger">禁用</el-tag>
+                            </template>
+
+                        </el-table-column>
+                        <el-table-column
+                                prop="icon"
+                                label="操作">
+
+                            <template slot-scope="scope">
+
+                                <el-button type="text" @click="editHandle(scope.row.id)">编辑</el-button>
+                                <el-divider direction="vertical"></el-divider>
+
+                                <template>
+                                    <el-popconfirm title="此操作为危险操作，确认删除吗？" @onConfirm="delHandle(scope.row.id)">
+                                        <el-button type="text" slot="reference">删除</el-button>
+                                    </el-popconfirm>
+                                </template>
+
+                            </template>
+                        </el-table-column>
+
+                    </el-table>
+
+
+                    <el-pagination
+                            style="margin-top: 20px"
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :page-sizes="[10, 20, 50, 100]"
+                            :current-page="current"
+                            :page-size="size"
+                            :total="total">
+                    </el-pagination>
+                </el-card>
+            </el-col>
+
+            <el-col span="8">
+                <el-card
+                        shadow="never">
+                    <div slot="header" class="clearfix">
+                        <span>分配权限</span>
+                        <el-button v-if="hasAuth('sys:role:perm')" style="float: right;" icon="el-icon-check" size="mini" type="primary" @click="submitPermFormHandle('permForm')">保存</el-button>
+                    </div>
+                    <el-form :model="permForm">
+
+                        <el-tree
+                                :data="permTreeData"
+                                show-checkbox
+                                ref="permTree"
+                                :default-expand-all=false
+                                node-key="id"
+                                :check-strictly=true
+                                :props="defaultProps">
+                        </el-tree>
+
+                    </el-form>
+                </el-card>
+            </el-col>
+
+        </el-row>
 
 
         <!--新增对话框-->
@@ -137,30 +169,6 @@
 
         </el-dialog>
 
-        <el-dialog
-                title="分配权限"
-                :visible.sync="permDialogVisible"
-                width="600px">
-
-            <el-form :model="permForm">
-
-                <el-tree
-                        :data="permTreeData"
-                        show-checkbox
-                        ref="permTree"
-                        :default-expand-all=true
-                        node-key="id"
-                        :check-strictly=true
-                        :props="defaultProps">
-                </el-tree>
-
-            </el-form>
-
-            <span slot="footer" class="dialog-footer">
-			    <el-button @click="permDialogVisible = false">取 消</el-button>
-			    <el-button type="primary" @click="submitPermFormHandle('permForm')">确 定</el-button>
-			</span>
-        </el-dialog>
     </div>
 </template>
 
@@ -259,6 +267,13 @@
                 })
             },
 
+            roleSelect(row, column,event) {
+                this.$axios.get("/sys/role/info/" + row.id).then(res => {
+                    this.$refs.permTree.setCheckedKeys(res.data.data.menuIds)
+                    this.permForm = res.data.data
+                })
+            },
+
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
@@ -267,7 +282,7 @@
                                 this.getRoleList()
                                 this.$notify({
                                     showClose: true,
-                                    message: '恭喜你，操作成功',
+                                    message: '操作成功',
                                     type: 'success'
                                 });
 
@@ -302,18 +317,9 @@
                     this.getRoleList()
                     this.$notify({
                         showClose: true,
-                        message: '恭喜你，操作成功',
+                        message: '删除成功',
                         type: 'success'
                     });
-                })
-            },
-            permHandle(id) {
-                this.permDialogVisible = true
-
-                this.$axios.get("/sys/role/info/" + id).then(res => {
-
-                    this.$refs.permTree.setCheckedKeys(res.data.data.menuIds)
-                    this.permForm = res.data.data
                 })
             },
 
@@ -324,10 +330,9 @@
                     this.getRoleList()
                     this.$notify({
                         showClose: true,
-                        message: '恭喜你，操作成功',
+                        message: '分配权限成功',
                         type: 'success'
                     });
-                    this.permDialogVisible = false
                     this.resetForm(formName)
                 })
             }

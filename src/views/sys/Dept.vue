@@ -11,7 +11,7 @@
                 :data="tableData"
                 style="width: 100%;margin-bottom: 20px;"
                 row-key="id"
-                default-expand-all
+                :default-expand-all="false"
                 :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
 
             <el-table-column

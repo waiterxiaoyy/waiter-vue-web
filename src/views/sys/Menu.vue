@@ -2,7 +2,7 @@
     <div class="container">
         <!--操作栏 begin-->
         <div class="handle-box">
-            <el-button type="primary" icon="el-icon-circle-plus-outline" class="mr10" @click="dialogVisible = true">创建新项目</el-button>
+            <el-button v-if="hasAuth('sys:menu:save')" type="primary" icon="el-icon-circle-plus-outline" class="mr10" @click="dialogVisible = true">创建新项目</el-button>
         </div>
         <!--操作栏 end-->
 
@@ -10,14 +10,21 @@
                 :data="tableData"
                 style="width: 100%;margin-bottom: 20px;"
                 row-key="id"
-                default-expand-all
+                :default-expand-all="false"
                 :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
 
             <el-table-column
                     prop="name"
                     label="名称"
                     sortable
-                    width="300">
+                    width="250">
+            </el-table-column>
+            <el-table-column
+                    prop="icon"
+                    label="图标">
+                <template slot-scope="scope">
+                    <i :class="scope.row.icon" ></i>
+                </template>
             </el-table-column>
             <el-table-column
                     prop="perms"
@@ -26,10 +33,7 @@
                     width="180">
             </el-table-column>
 
-            <el-table-column
-                    prop="icon"
-                    label="图标">
-            </el-table-column>
+
 
             <el-table-column
                     prop="type"
@@ -58,6 +62,7 @@
                     prop="statu"
                     label="状态">
                 <template slot-scope="scope">
+
                     <el-tag size="small" v-if="scope.row.statu === 1" type="success">正常</el-tag>
                     <el-tag size="small" v-else-if="scope.row.statu === 0" type="danger">禁用</el-tag>
                 </template>
@@ -72,7 +77,7 @@
                     <el-divider direction="vertical"></el-divider>
 
                     <template>
-                        <el-popconfirm title="这是一段内容确定删除吗？" confirm-button-text="确认" cancel-button-text="取消" @onConfirm="delHandle(scope.row.id)">
+                        <el-popconfirm title="此操作为危险操作，确认删除吗？" confirm-button-text="确认" cancel-button-text="取消" @onConfirm="delHandle(scope.row.id)">
                             <el-button type="text" slot="reference">删除</el-button>
                         </el-popconfirm>
                     </template>
@@ -202,7 +207,7 @@
                                 this.getMenuTree()
                                 this.$notify({
                                     showClose: true,
-                                    message: '恭喜你，操作成功',
+                                    message: '操作成功',
                                     type: 'success'
                                 });
 
@@ -235,7 +240,7 @@
                     if(res.data.code === 200) {
                         this.$notify({
                             showClose: true,
-                            message: '恭喜你，操作成功',
+                            message: '删除成功',
                             type: 'success'
                         });
                     }
