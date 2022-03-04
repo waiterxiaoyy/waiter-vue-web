@@ -147,7 +147,6 @@
                     <el-input-number v-model="editForm.orderNum" :min="1" label="排序号">1</el-input-number>
                 </el-form-item>
 
-
                 <el-form-item>
                     <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
                     <el-button @click="resetForm('editForm')">重 置</el-button>
@@ -196,6 +195,13 @@
         methods: {
             getMenuTree() {
                 this.$axios.get("/sys/menu/list").then(res => {
+                    var topMenu = {
+                        id: 0,
+                        name: '顶级目录',
+                        parentId: 0,
+                        type: 0,
+                        statu: 1
+                    }
                     this.tableData = res.data.data
                 })
             },

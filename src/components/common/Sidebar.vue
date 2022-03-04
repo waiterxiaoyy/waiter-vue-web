@@ -12,7 +12,7 @@
         >
             <template v-for="item in menuList">
                 <template v-if="item.children.length > 0">
-                    <el-submenu :index="item.path" :key="item.index">
+                    <el-submenu :index="item.index" :key="item.index">
                         <template slot="title">
                             <i :class="item.icon"></i>
                             <span slot="title">{{ item.title }}</span>
@@ -43,7 +43,7 @@
                     </el-submenu>
                 </template>
                 <template v-if="item.children.length === 0">
-                    <el-menu-item :index="item.path" :key="item.index">
+                    <el-menu-item :index="item.index" :key="item.index">
                         <i :class="item.icon"></i>
                         <span slot="title">{{ item.title }}</span>
                     </el-menu-item>

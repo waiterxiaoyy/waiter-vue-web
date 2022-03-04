@@ -12,7 +12,7 @@
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button @click="getUserList" icon="el-icon-search">搜索</el-button>
+                    <el-button @click="" icon="el-icon-search">搜索</el-button>
                 </el-form-item>
 
                 <el-form-item>
