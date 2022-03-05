@@ -93,7 +93,6 @@
             },
             handleChange(value) {
                 this.upLoadData.classId = value[value.length - 1]
-                console.log(this.upLoadData.classId)
             },
             getClassTree() {
                 this.$axios.get("/mem/stu/getcctree").then(res => {

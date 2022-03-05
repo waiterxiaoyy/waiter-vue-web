@@ -4,7 +4,7 @@
         </el-page-header>
 
         <el-row :gutter="20">
-            <el-col span="14">
+            <el-col :span="14">
                 <div class="course-abt">
                     <div class="course-title">
                         软件工程教学班1
@@ -76,11 +76,11 @@
                                     </el-form-item>
 
                                     <el-form-item>
-                                        <el-button @click="getUserList" icon="el-icon-search">搜索</el-button>
+                                        <el-button @click="" icon="el-icon-search">搜索</el-button>
                                     </el-form-item>
 
                                     <el-form-item>
-                                        <el-button type="primary" @click="dialogVisible = true" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
+                                        <el-button type="primary" @click="handleHomeWorkEdit(true)" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
                                     </el-form-item>
                                     <el-form-item>
                                         <el-popconfirm title="这是确定批量删除吗？" @onConfirm="delHandle(null)">
@@ -154,7 +154,7 @@
                     </el-tabs>
                 </div>
             </el-col>
-            <el-col span="10">
+            <el-col :span="10">
                 <div class="comment-bd"  style="overflow:auto">
                     <div class="comment-header">
                         <span>讨论区</span>
@@ -175,7 +175,9 @@
                                     </div>
                                 </div>
                                 <div class="comment-content">
-                                    有趣的课程，可以对函数式编程产生初步的认识可以对函数式编程产生初步的认识可以对函数式编程产生初步的认识可以对函数式编程产生初步的认识可以对函数式编程产生初步的认识，值的一学。获得的毕业证书企业也……
+                                    <div class="ql-editor">
+                                        <div v-html="commentEditForm.content"></div>
+                                    </div>
                                 </div>
                                 <div class="comment-handle">
                                     <el-button style="margin-right: 3px" type="text">回复 </el-button>
@@ -200,7 +202,10 @@
                                         </div>
                                     </div>
                                     <div class="comment-content">
-                                        程产生初步的认识可以对函数式编程产生书企业也……
+                                        <h2>I am Example</h2>
+                                    </div>
+                                    <div class="comment-handle">
+                                        <el-button style="margin-right: 3px" type="text"> 删除</el-button>
                                     </div>
                                 </div>
 
@@ -215,17 +220,26 @@
                                 :total="1000"
                                 :pager-count="5">
                         </el-pagination>
+
+                    </div>
+
+                    <div class="comment-editor">
+                        <MyQuillEditor :value="commentEditForm.content" @input="handleEditorChange"></MyQuillEditor>
                     </div>
                 </div>
+
             </el-col>
         </el-row>
-
+        <HomeWorkEdit :homeworkEditDig.sync="homeworkEditDig" :homeworkId.sync="homeworkId" :isNew.sync="isNew"></HomeWorkEdit>
     </div>
 </template>
 
 <script>
+    import MyQuillEditor from "../../components/quill/MyQuillEditor";
+    import HomeWorkEdit from "./component/HomeWorkEdit";
     export default {
         name: "CourseDetail",
+        components: {HomeWorkEdit, MyQuillEditor},
         data() {
             return {
                 activeName: 'second',
@@ -248,7 +262,18 @@
                 delBtlStatu: true,
                 searchForm: {},
                 dialogVisible: false,
-                count: 2
+                count: 2,
+                commentEditForm: {
+                    content: '默认内容',
+                    commentId: '',
+                    userId: '',
+                    courseId: '',
+                    statu: 1,
+                    type: 0
+                },
+                homeworkEditDig: true,
+                homeworkId: '',
+                isNew: false
 
             }
         },
@@ -262,8 +287,15 @@
             filterHandler (value, row) {
                 return row.row === value
             },
-            load () {
-                this.count = 8
+            handleEditorChange(newValue) {
+                this.commentEditForm.content = newValue
+            },
+            handleHomeWorkEdit(isNew) {
+                if(isNew) {
+                    this.homeworkId = ''
+                }
+                this.isNew = isNew;
+                this.homeworkEditDig = true
             }
 
         }
@@ -451,7 +483,7 @@
 
     .comment-content {
         width: 97.5%;
-        margin: 8px 5px 5px 8px;
+        margin: 0px 0px 5px 8px;
         font-family: "Microsoft Yahei", "Times New Roman", Arial, Helvetica, sans-serif;
         font-size: 14px;
     }
@@ -469,6 +501,11 @@
         width: 88%;
         margin-left: 55px;
         margin-bottom: 10px;
+    }
+
+    .comment-editor {
+        height: 40px;
+        padding-top: 15px;
     }
 
 

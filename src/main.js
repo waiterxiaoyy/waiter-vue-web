@@ -23,6 +23,10 @@ import uploader from 'vue-simple-uploader';
 import global from './globalFun'
 import MyComm from "./global";
 
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
 Vue.use(uploader);
 Vue.prototype.$axios = axios
 Vue.prototype.$MyComm = MyComm;

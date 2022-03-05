@@ -94,7 +94,7 @@
                 width="600px"
                 :before-close="handleClose">
 
-            <el-form :model="editForm" :rules="editFormRules" ref="editForm" label-width="100px" class="demo-editForm">
+            <el-form :model="editForm" label-position="right" :rules="editFormRules" ref="editForm" label-width="100px" class="demo-editForm">
 
                 <el-form-item label="上级菜单" prop="parentId">
                     <el-select v-model="editForm.parentId" placeholder="请选择上级菜单">
