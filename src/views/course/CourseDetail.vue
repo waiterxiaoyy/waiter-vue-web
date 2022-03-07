@@ -5,154 +5,157 @@
 
         <el-row :gutter="20">
             <el-col :span="14">
-                <div class="course-abt">
-                    <div class="course-title">
-                        软件工程教学班1
+                <el-row>
+                    <div class="course-abt">
+                        <div class="course-title">
+                            软件工程教学班1
+                        </div>
+
+                        <div class="course-info">
+                            <span><i class="el-icon-s-custom"></i> 王小二</span><el-divider direction="vertical"></el-divider>
+                            <span><i class="el-icon-orange"></i> 59人</span>
+                        </div>
+                        <el-divider></el-divider>
                     </div>
-
-
-                    <div class="course-info">
-                        <span><i class="el-icon-s-custom"></i> 王小二</span><el-divider direction="vertical"></el-divider>
-                        <span><i class="el-icon-orange"></i> 59人</span>
-                    </div>
-                    <el-divider></el-divider>
-                </div>
-                <div class="course-manage">
-                    <el-tabs v-model="activeName" @tab-click="handleClick">
-                        <el-tab-pane label="课程详情" name="first">
-                            <div class="course-desc">
-                                <div class="course-desc-title">
-                                    课程简介
-                                </div>
-                                <div class="course-desc-info">
-                                    本课程介绍编程语言的基本概念，重点介绍函数式编程。本课程使用的语言ML，球拍，红宝石作为教学概念的车辆，但真正的意图是教足够的关于如何任何语言“合在一起”，使您更有效的编程在任何语言-和学习新的...
-                                </div>
-                            </div>
-
-                            <div class="course-desc">
-                                <div class="course-desc-title">
-                                    课程教学
-                                </div>
-                                <div class="course-desc-info">
-                                    <div class="course-desc-info-avatar">
-                                        <el-avatar :size="80" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
+                </el-row>
+                <el-row>
+                    <div class="course-manage">
+                        <el-tabs v-model="activeName" @tab-click="handleClick">
+                            <el-tab-pane label="课程详情" name="first">
+                                <div class="course-desc">
+                                    <div class="course-desc-title">
+                                        课程简介
                                     </div>
-                                    <div class="course-desc-info-abt">
-                                        <div class="course-desc-info-abt-desc">
-                                            <div class="course-desc-info-abt-desc-tittle">任课教师: </div>
-                                            <div class="course-desc-info-abt-desc-info">王小二</div>
-                                        </div>
-                                        <div class="course-desc-info-abt-desc">
-                                            <div class="course-desc-info-abt-desc-tittle">教师描述: </div>
-                                            <div class="course-desc-info-abt-desc-info">JavaEE开发与教学多年，精通JavaEE技术体系，对流行框架JQuery、DWR、Struts1/2，Hibernate，Spring，MyBatis、JBPM、Lucene等有深入研究。授课逻辑严谨，条理清晰，注重学生独立解决问题的能力。</div>
-                                        </div>
-                                        <div class="course-desc-info-abt-desc">
-                                            <div class="course-desc-info-abt-desc-tittle">导师类别: </div>
-                                            <div class="course-desc-info-abt-desc-info">博士生导师、硕士生导师</div>
-                                        </div>
-                                        <div class="course-desc-info-abt-desc">
-                                            <div class="course-desc-info-abt-desc-tittle">联系方式: </div>
-                                            <div class="course-desc-info-abt-desc-info">waiterxiaoyy@qq.com</div>
-                                        </div>
-
+                                    <div class="course-desc-info">
+                                        本课程介绍编程语言的基本概念，重点介绍函数式编程。本课程使用的语言ML，球拍，红宝石作为教学概念的车辆，但真正的意图是教足够的关于如何任何语言“合在一起”，使您更有效的编程在任何语言-和学习新的...
                                     </div>
                                 </div>
-                            </div>
+
+                                <div class="course-desc">
+                                    <div class="course-desc-title">
+                                        课程教学
+                                    </div>
+                                    <div class="course-desc-info">
+                                        <div class="course-desc-info-avatar">
+                                            <el-avatar :size="80" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
+                                        </div>
+                                        <div class="course-desc-info-abt">
+                                            <div class="course-desc-info-abt-desc">
+                                                <div class="course-desc-info-abt-desc-tittle">任课教师: </div>
+                                                <div class="course-desc-info-abt-desc-info">王小二</div>
+                                            </div>
+                                            <div class="course-desc-info-abt-desc">
+                                                <div class="course-desc-info-abt-desc-tittle">教师描述: </div>
+                                                <div class="course-desc-info-abt-desc-info">JavaEE开发与教学多年，精通JavaEE技术体系，对流行框架JQuery、DWR、Struts1/2，Hibernate，Spring，MyBatis、JBPM、Lucene等有深入研究。授课逻辑严谨，条理清晰，注重学生独立解决问题的能力。</div>
+                                            </div>
+                                            <div class="course-desc-info-abt-desc">
+                                                <div class="course-desc-info-abt-desc-tittle">导师类别: </div>
+                                                <div class="course-desc-info-abt-desc-info">博士生导师、硕士生导师</div>
+                                            </div>
+                                            <div class="course-desc-info-abt-desc">
+                                                <div class="course-desc-info-abt-desc-tittle">联系方式: </div>
+                                                <div class="course-desc-info-abt-desc-info">waiterxiaoyy@qq.com</div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
 
 
 
-                        </el-tab-pane>
-                        <el-tab-pane label="作业情况" name="second">
-                            <!--操作栏 begin-->
-                            <div class="handle-box">
-                                <el-form :inline="true">
-                                    <el-form-item>
-                                        <el-input
-                                                v-model="searchForm.username"
-                                                placeholder="用户名"
-                                                clearable
-                                        >
-                                        </el-input>
-                                    </el-form-item>
+                            </el-tab-pane>
+                            <el-tab-pane label="作业情况" name="second">
+                                <!--操作栏 begin-->
+                                <div class="handle-box">
+                                    <el-form :inline="true">
+                                        <el-form-item>
+                                            <el-input
+                                                    v-model="searchForm.username"
+                                                    placeholder="用户名"
+                                                    clearable
+                                            >
+                                            </el-input>
+                                        </el-form-item>
 
-                                    <el-form-item>
-                                        <el-button @click="" icon="el-icon-search">搜索</el-button>
-                                    </el-form-item>
+                                        <el-form-item>
+                                            <el-button @click="" icon="el-icon-search">搜索</el-button>
+                                        </el-form-item>
 
-                                    <el-form-item>
-                                        <el-button type="primary" @click="handleHomeWorkEdit(true)" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
-                                    </el-form-item>
-                                    <el-form-item>
-                                        <el-popconfirm title="这是确定批量删除吗？" @onConfirm="delHandle(null)">
-                                            <el-button type="danger" slot="reference" :disabled="delBtlStatu" v-if="hasAuth('sys:user:delete')">批量删除</el-button>
-                                        </el-popconfirm>
-                                    </el-form-item>
-                                </el-form>
-                            </div>
-                            <div class="teacher-course-homework-table">
-                                <el-table
-                                        :data="homeworkTable"
-                                        style="width: 100%">
-                                    <el-table-column type="expand">
-                                        <template slot-scope="props">
-                                            <el-form label-position="left" inline class="demo-table-expand">
-                                                <el-form-item label="发布人">
-                                                    <span>{{ props.row.teacherName }}</span>
-                                                </el-form-item>
-                                                <el-form-item label="发布时间">
-                                                    <span>{{ props.row.beginTime }}</span>
-                                                </el-form-item>
-                                            </el-form>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column
-                                            label="状态"
-                                            align="center"
-                                            :filters="[{text: '正在收集', value: 1}, {text: '已截止', value: 0}]"
-                                            :filter-method="filterHandler">
-                                        <template slot-scope="scope">
-                                            <el-tag v-if="scope.row.statu == 0" type="success" effect="dark" size="small"><i class="el-icon-loading"></i>正在收集</el-tag>
-                                            <el-tag v-if="scope.row.statu == 1" type="danger" effect="dark" size="small">已截止</el-tag>
-                                        </template>
-                                    </el-table-column>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="handleHomeWorkEdit(true)" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
+                                                <el-button type="danger" slot="reference" :disabled="delBtlStatu" v-if="hasAuth('sys:user:delete')">批量删除</el-button>
+                                            </el-popconfirm>
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
+                                <div class="teacher-course-homework-table">
+                                    <el-table
+                                            :data="homeworkTable"
+                                            style="width: 100%">
+                                        <el-table-column type="expand">
+                                            <template slot-scope="props">
+                                                <el-form label-position="left" inline class="demo-table-expand">
+                                                    <el-form-item label="发布人">
+                                                        <span>{{ props.row.teacherName }}</span>
+                                                    </el-form-item>
+                                                    <el-form-item label="发布时间">
+                                                        <span>{{ props.row.beginTime }}</span>
+                                                    </el-form-item>
+                                                </el-form>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column
+                                                label="状态"
+                                                align="center"
+                                                :filters="[{text: '正在收集', value: 1}, {text: '已截止', value: 0}]"
+                                                :filter-method="filterHandler">
+                                            <template slot-scope="scope">
+                                                <el-tag v-if="scope.row.statu == 0" type="success" effect="dark" size="small"><i class="el-icon-loading"></i>正在收集</el-tag>
+                                                <el-tag v-if="scope.row.statu == 1" type="danger" effect="dark" size="small">已截止</el-tag>
+                                            </template>
+                                        </el-table-column>
 
-                                    <el-table-column
-                                            prop="homeworkTitle"
-                                            label="作业标题">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="endTime"
-                                            label="截止时间">
-                                    </el-table-column>
-                                    <el-table-column
-                                            label="操作"
-                                            width="220"
-                                            align="center">
-                                        <template slot-scope="scope">
-                                            <el-button type="text" @click="editHandle(scope.row.id)">编辑</el-button>
-                                            <el-divider direction="vertical"></el-divider>
-                                            <el-button type="text" @click="editHandle(scope.row.id)">详情</el-button>
-                                            <el-divider direction="vertical"></el-divider>
-                                            <el-button type="text" @click="editHandle(scope.row.id)">完成情况</el-button>
-                                            <el-divider direction="vertical"></el-divider>
+                                        <el-table-column
+                                                prop="homeworkTitle"
+                                                label="作业标题">
+                                        </el-table-column>
+                                        <el-table-column
+                                                prop="endTime"
+                                                label="截止时间">
+                                        </el-table-column>
+                                        <el-table-column
+                                                label="操作"
+                                                width="220"
+                                                align="center">
+                                            <template slot-scope="scope">
+                                                <el-button type="text" @click="editHandle(scope.row.id)">编辑</el-button>
+                                                <el-divider direction="vertical"></el-divider>
+                                                <el-button type="text" @click="editHandle(scope.row.id)">详情</el-button>
+                                                <el-divider direction="vertical"></el-divider>
+                                                <el-button type="text" @click="editHandle(scope.row.id)">完成情况</el-button>
+                                                <el-divider direction="vertical"></el-divider>
 
-                                            <template>
-                                                <el-popconfirm title="此操作为危险操作，确认删除吗？" confirm-button-text="确认" cancel-button-text="取消" @onConfirm="delHandle(scope.row.id)">
-                                                    <el-button type="text" slot="reference">删除</el-button>
-                                                </el-popconfirm>
+                                                <template>
+                                                    <el-popconfirm title="此操作为危险操作，确认删除吗？" confirm-button-text="确认" cancel-button-text="取消" @onConfirm="delHandle(scope.row.id)">
+                                                        <el-button type="text" slot="reference">删除</el-button>
+                                                    </el-popconfirm>
+                                                </template>
+
                                             </template>
 
-                                        </template>
 
-
-                                    </el-table-column>
-                                </el-table>
-                            </div>
-                        </el-tab-pane>
-                        <el-tab-pane label="考勤情况" name="third">考勤情况</el-tab-pane>
-                        <el-tab-pane label="班级成员" name="fourth">班级成员</el-tab-pane>
-                    </el-tabs>
-                </div>
+                                        </el-table-column>
+                                    </el-table>
+                                </div>
+                            </el-tab-pane>
+                            <el-tab-pane label="考勤情况" name="third">考勤情况</el-tab-pane>
+                            <el-tab-pane label="班级成员" name="fourth">班级成员</el-tab-pane>
+                        </el-tabs>
+                    </div>
+                </el-row>
             </el-col>
             <el-col :span="10">
                 <div class="comment-bd"  style="overflow:auto">
@@ -271,7 +274,7 @@
                     statu: 1,
                     type: 0
                 },
-                homeworkEditDig: true,
+                homeworkEditDig: false,
                 homeworkId: '',
                 isNew: false
 
@@ -303,7 +306,7 @@
 
 </script>
 
-<style>
+<style scoped>
     .handle-box {
         margin-bottom: 20px;
     }

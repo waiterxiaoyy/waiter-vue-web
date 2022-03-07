@@ -61,7 +61,7 @@
                     <el-divider direction="vertical"></el-divider>
 
                     <template>
-                        <el-popconfirm title="此操作为危险操作，是否确认删除" confirm-button-text="确认" cancel-button-text="取消" @onConfirm="delHandle(scope.row.id)">
+                        <el-popconfirm title="此操作为危险操作，是否确认删除" confirm-button-text="确认" cancel-button-text="取消" @confirm="delHandle(scope.row.id)">
                             <el-button type="text" slot="reference">删除</el-button>
                         </el-popconfirm>
                     </template>
@@ -274,8 +274,8 @@
             },
             resetForm(formName) {
                 this.$refs[formName].resetFields();
-                this.addCollegeDialogVisible = false
-                this.classDialogVisible = false
+                this.addCollegeDialogVisible = false;
+                this.classDialogVisible = false;
                 this.editForm = {}
             },
             handleAddCollegeClose() {

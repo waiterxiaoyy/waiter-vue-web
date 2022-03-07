@@ -13,12 +13,12 @@
                     <el-button type="primary" @click="addStudentDig = true" icon="el-icon-circle-plus-outline">新增</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <el-popconfirm title="确定批量删除吗？" @onConfirm="delHandle()">
+                    <el-popconfirm title="确定批量删除吗？" @confirm="delHandle()">
                         <el-button type="danger" slot="reference" :disabled="btStatus">批量删除</el-button>
                     </el-popconfirm>
                 </el-form-item>
                 <el-form-item>
-                    <el-popconfirm title="即将导入学生名单？" @onConfirm="upSubmit()">
+                    <el-popconfirm title="即将导入学生名单？" @confirm="upSubmit()">
                         <el-button type="success" slot="reference" v-if="hasAuth('mem:stu:add')" :disabled="btStatus">确认导入</el-button>
                     </el-popconfirm>
                 </el-form-item>
@@ -239,6 +239,7 @@
 
             },
             upSubmit() {
+
                 if(this.multipleSelection == [] ||this.multipleSelection.length <= 0) {
                     this.$notify({
                         title: '提示',
