@@ -7,15 +7,11 @@
                     <el-form :inline="true">
                         <el-form-item>
                             <el-input
-                                    v-model="searchForm.query"
+                                    v-model="searchForm.value"
                                     placeholder="输入名称"
                                     clearable
                             >
                             </el-input>
-                        </el-form-item>
-
-                        <el-form-item>
-                            <el-button @click="getTermCourseList" icon="el-icon-search">搜索</el-button>
                         </el-form-item>
 
                         <el-form-item>
@@ -29,11 +25,12 @@
                 <!--操作栏 end-->
 
                 <el-table
-                        :data="termCourseList"
+                        :data="treeData"
                         style="width: 100%;margin-bottom: 20px;"
                         row-key="id"
                         @row-click="rowClickHandler"
                         :default-expand-all="false"
+                        :expand-row-keys="expandRow"
                         :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
 
                     <el-table-column
@@ -335,6 +332,7 @@
         data () {
             return {
                 termCourseList: [],
+                expandRow: [],
 
                 selectCourse: false,
                 courseClassList: [],
@@ -402,6 +400,25 @@
           }
           this.getTermCourseList()
         },
+        computed: {
+            treeData:function(){
+                var searchValue=this.searchForm.value;
+                if(searchValue){
+                    // 一般表格的查询
+                    // return  this.tableData.filter(function(dataNews){
+                    //   return Object.keys(dataNews).some(function(key){
+                    //     return String(dataNews[key]).toLowerCase().indexOf(search) > -1
+                    //   })
+                    // })
+                    let treeData = this.termCourseList;
+                    let handleTreeData = this.handleTreeData(treeData, searchValue)
+                    this.setExpandRow(handleTreeData)
+                    this.expandRow = this.expandRow.join(",").split(",")
+                    return handleTreeData
+                }
+                return this.termCourseList
+            }
+        },
         mounted () {
             // this.$vux.loading.show()
             // this.$http.get('v1/member-souse').then(
@@ -418,12 +435,42 @@
             // )
         },
         methods: {
-            getTermCourseList() {
-                this.$axios.get("/course/getTermCourse", {
-                    params: {
-                        query: this.searchForm.query,
+            //  树形表格过滤
+            handleTreeData(treeData, searchValue) {
+                if (!treeData || treeData.length === 0) {
+                    return [];
+                }
+                const array = [];
+                for (let i = 0; i < treeData.length; i += 1) {
+                    let match = false;
+                    for(let pro in treeData[i]){
+                        if(typeof(treeData[i][pro])=='string'){
+                            match |= treeData[i][pro].includes(searchValue);
+                            if(match) break;
+                        }
                     }
-                }).then(res=> {
+                    if (this.handleTreeData(treeData[i].children, searchValue).length > 0 || match ) {
+                        array.push({
+                            ...treeData[i],
+                            children: this.handleTreeData(treeData[i].children, searchValue),
+                        });
+                    }
+                }
+                return array;
+            },
+            // 将过滤好的树形数据展开
+            setExpandRow(handleTreeData) {
+                if(handleTreeData.length) {
+                    for (let i of handleTreeData) {
+                        this.expandRow.push(i.id)
+                        if(i.children.length) {
+                            this.setExpandRow(i.children)
+                        }
+                    }
+                }
+            },
+            getTermCourseList() {
+                this.$axios.get("/course/getTermCourse").then(res=> {
                     this.termCourseList = res.data.data;
                 })
             },

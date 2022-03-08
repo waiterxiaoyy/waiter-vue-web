@@ -2,15 +2,29 @@
     <div class="container">
         <!--操作栏 begin-->
         <div class="handle-box">
-            <el-button v-if="hasAuth('sys:menu:save')" type="primary" icon="el-icon-circle-plus-outline" class="mr10" @click="dialogVisible = true">创建新项目</el-button>
+            <el-form :inline="true">
+                <el-form-item>
+                    <el-input
+                            v-model="searchForm.value"
+                            placeholder="输入搜索内容"
+                            clearable
+                    >
+                    </el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button v-if="hasAuth('sys:menu:save')" type="primary" icon="el-icon-circle-plus-outline" class="mr10" @click="dialogVisible = true">创建新项目</el-button>
+                </el-form-item>
+            </el-form>
+
         </div>
         <!--操作栏 end-->
 
         <el-table
-                :data="tableData"
+                :data="treeData"
                 style="width: 100%;margin-bottom: 20px;"
                 row-key="id"
                 :default-expand-all="false"
+                :expand-row-keys="expandRow"
                 :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
 
             <el-table-column
@@ -98,7 +112,7 @@
 
                 <el-form-item label="上级菜单" prop="parentId">
                     <el-select v-model="editForm.parentId" placeholder="请选择上级菜单">
-                        <template v-for="item in tableData">
+                        <template v-for="item in menuList">
                             <el-option :label="item.name" :value="item.id"></el-option>
                             <template v-for="child in item.children">
                                 <el-option :label="child.name" :value="child.id">
@@ -186,13 +200,68 @@
                         {required: true, message: '请选择状态', trigger: 'blur'}
                     ]
                 },
-                tableData: []
+                menuList: [],
+                searchForm: {},
+                expandRow: []
+            }
+        },
+        computed: {
+            treeData: function () {
+                var searchValue = this.searchForm.value;
+                if (searchValue) {
+                    // 一般表格的查询
+                    // return  this.tableData.filter(function(dataNews){
+                    //   return Object.keys(dataNews).some(function(key){
+                    //     return String(dataNews[key]).toLowerCase().indexOf(search) > -1
+                    //   })
+                    // })
+                    let treeData = this.menuList;
+                    let handleTreeData = this.handleTreeData(treeData, searchValue)
+                    this.setExpandRow(handleTreeData)
+                    this.expandRow = this.expandRow.join(",").split(",")
+                    return handleTreeData
+                }
+                return this.menuList
             }
         },
         created() {
           this.getMenuTree()
         },
         methods: {
+            //  树形表格过滤
+            handleTreeData(treeData, searchValue) {
+                if (!treeData || treeData.length === 0) {
+                    return [];
+                }
+                const array = [];
+                for (let i = 0; i < treeData.length; i += 1) {
+                    let match = false;
+                    for(let pro in treeData[i]){
+                        if(typeof(treeData[i][pro])=='string'){
+                            match |= treeData[i][pro].includes(searchValue);
+                            if(match) break;
+                        }
+                    }
+                    if (this.handleTreeData(treeData[i].children, searchValue).length > 0 || match ) {
+                        array.push({
+                            ...treeData[i],
+                            children: this.handleTreeData(treeData[i].children, searchValue),
+                        });
+                    }
+                }
+                return array;
+            },
+            // 将过滤好的树形数据展开
+            setExpandRow(handleTreeData) {
+                if(handleTreeData.length) {
+                    for (let i of handleTreeData) {
+                        this.expandRow.push(i.id)
+                        if(i.children.length) {
+                            this.setExpandRow(i.children)
+                        }
+                    }
+                }
+            },
             getMenuTree() {
                 this.$axios.get("/sys/menu/list").then(res => {
                     var topMenu = {
@@ -202,7 +271,7 @@
                         type: 0,
                         statu: 1
                     }
-                    this.tableData = res.data.data
+                    this.menuList = res.data.data
                 })
             },
             submitForm(formName) {
