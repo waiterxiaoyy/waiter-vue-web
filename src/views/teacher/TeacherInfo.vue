@@ -34,11 +34,15 @@
                             </el-form-item>
 
                             <el-form-item>
-                                <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addDig = true" v-if="hasAuth('mem:stu:add')">新增教师</el-button>
+                                <el-button type="primary" icon="el-icon-circle-plus-outline" @click="editDig = true" v-if="hasAuth('mem:teac:add')">新增教师</el-button>
                             </el-form-item>
 
                             <el-form-item>
-                                <el-button type="danger" icon="el-icon-error" :disabled="multiSelStatu" v-if="hasAuth('mem:stu:delete')" @click="delHandle(null)">批量删除</el-button>
+                                <el-button type="warning" icon="" @click="showFuture" v-if="hasAuth('mem:teac:add')">导入名单</el-button>
+                            </el-form-item>
+
+                            <el-form-item>
+                                <el-button type="danger" icon="el-icon-error" :disabled="multiSelStatu" v-if="hasAuth('mem:teac:delete')" @click="delHandle(null)">批量删除</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -78,12 +82,12 @@
                                 fixed="right"
                                 label="操作">
                             <template slot-scope="scope">
-                                <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                                <el-button @click="" type="text" size="small">查看</el-button>
                                 <el-divider direction="vertical"></el-divider>
                                 <el-button type="text" size="small">编辑</el-button>
                                 <el-divider direction="vertical"></el-divider>
                                 <template>
-                                    <el-popconfirm title="此操作为危险操作，确定删除吗？" @onConfirm="delHandle(scope.row)">
+                                    <el-popconfirm title="此操作为危险操作，确定删除吗？" @confirm="delHandle(scope.row)">
                                         <el-button type="text" slot="reference">删除</el-button>
                                     </el-popconfirm>
                                 </template>
@@ -105,29 +109,43 @@
 
         </el-card>
 
-        <el-dialog title="新增教师" :visible.sync="addDig" width="30%" >
-            <el-form :model="addStudentForm" :rules="addStuFormRules" ref="addStudentForm" width="30%" label-width="80px">
+        <el-dialog title="编辑" :visible.sync="editDig" width="30%" >
+            <el-form :model="editForm" :rules="formRules" ref="editForm" width="30%" label-width="80px">
                 <el-form-item label="选择专业" prop="casSelectData">
                     <el-cascader
                             width="100%"
                             style="width: 100%;"
-                            v-model="addStudentForm.casSelectData"
+                            v-model="editForm.casSelectData"
                             :options="casData"
                             placeholder="请选择要导入的班级"
                             :props="optionProps"
                             @change="handleChange">
                     </el-cascader>
                 </el-form-item>
-                <el-form-item label="教师ID" prop="studentId">
-                    <el-input v-model="addStudentForm.teacherId" autocomplete="off"></el-input>
+                <el-form-item label="教师ID" prop="teacherId">
+                    <el-input v-model="editForm.teacherId" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="教师姓名" prop="studentName">
-                    <el-input v-model="addStudentForm.teacherName" autocomplete="off"></el-input>
+                <el-form-item label="教师姓名" prop="teacherName">
+                    <el-input v-model="editForm.teacherName" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="入职时间" prop="beginTime">
+                    <el-date-picker
+                            v-model="editForm.beginTime"
+                            type="date"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="当前状态" prop="statu" >
+                    <el-radio-group v-model="editForm.statu">
+                        <el-radio :label=0>禁用</el-radio>
+                        <el-radio :label=1>正常</el-radio>
+                    </el-radio-group>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="addDig = false">取 消</el-button>
-                <el-button type="primary" @click="addStuHandle('addStudentForm')">确 定</el-button>
+                <el-button @click="editDig = false">取 消</el-button>
+                <el-button type="primary" @click="addHandle('editForm')">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -162,23 +180,30 @@
 
                 uploadDrawer: false,
 
-                addDig: false,
+                editDig: false,
 
-                addStudentForm: {},
+                editForm: {},
 
-                addStuFormRules: {
+                formRules: {
                     casSelectData: [
                         {required: true, message: '请选择专业',trigger: 'blur'},
                         {type: 'array',message: '请选择专业',trigger: ['blur', 'change']}
                     ],
                     teacherId: [
-                        {required: true, message: '请输入11位学号', trigger: 'blur'},
-                        {min: 11, max: 11, message: '请输入11位学号', trigger: 'blur'}
+                        {required: true, message: '请输入8位工号', trigger: 'blur'},
+                        {min: 8, max: 8, message: '请输入8位工号', trigger: 'blur'}
                     ],
                     teacherName: [
                         {required: true, message: '请输入姓名', trigger: 'blur'},
                         {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
                     ],
+                    beginTime: [
+                        {required: true, message: '请选择入职时间',trigger: 'blur'},
+                    ],
+                    statu: [
+                        {required: true, message: '请选择当前状态',trigger: 'blur'},
+                    ],
+
                 },
 
                 optionProps: {
@@ -297,23 +322,21 @@
                 return data;
             },
 
-            addStuHandle(formName) {
+            addHandle(formName) {
                 this.$refs[formName].validate((valid)=> {
                     if(valid) {
-                        this.addStudentForm.classId = this.addStudentForm.casSelectData[this.addStudentForm.casSelectData.length - 1]
+                        this.editForm.majorId = this.editForm.casSelectData[this.editForm.casSelectData.length - 1]
 
-                        let postData = []
-                        postData.push(this.addStudentForm)
-                        this.$axios.post('/mem/stu/addStuInClass', postData).then(res => {
+                        this.$axios.post('/mem/teac/addTeacher', this.editForm).then(res => {
                             if(res.data.code == 200) {
                                 this.$notify({
                                     showClose: true,
-                                    message: '添加学生<' + this.addStudentForm.studentName + '>成功',
+                                    message: '添加成功',
                                     type: 'success'
                                 });
-                                this.getClassStudentList()
-                                this.addStudentForm = {}
-                                this.addStudentDig = false
+                                this.getMajorTeacherList()
+                                this.editForm = {}
+                                this.editDig = false
                             }
                         })
                     }
@@ -322,9 +345,9 @@
             delHandle(select) {
                 if(select != null) {
                     this.multipleSelection.push(select)
-                    this.$axios.post('/mem/stu/delete', this.multipleSelection).then(res => {
+                    this.$axios.post('/mem/teac/delete', this.multipleSelection).then(res => {
                         if(res.data.code == 200) {
-                            this.getClassStudentList()
+                            this.getMajorTeacherList()
                             this.multipleSelection = []
                             this.$notify({
                                 showClose: true,
@@ -342,9 +365,9 @@
                         type: 'warning'
                     }).then(() => {
 
-                        _this.$axios.post('/mem/stu/delete', _this.multipleSelection).then(res => {
+                        _this.$axios.post('/mem/teac/delete', _this.multipleSelection).then(res => {
                             if(res.data.code == 200) {
-                                this.getClassStudentList()
+                                this.getMajorTeacherList()
                                 this.$notify({
                                     showClose: true,
                                     message: '批量删除成功',
