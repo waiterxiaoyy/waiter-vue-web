@@ -169,8 +169,22 @@
                 <el-form-item label="邮箱"  prop="email" label-width="100px">
                     <el-input v-model="editForm.email" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="手机号"  prop="phone" label-width="100px">
-                    <el-input v-model="editForm.phone" autocomplete="off"></el-input>
+                <el-form-item label="所在城市"  prop="city" label-width="100px">
+                    <el-input v-model="editForm.city" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="政治面貌"  prop="zzstatus" label-width="100px">
+                    <el-select style="width: 100%" v-model="editForm.zzstatus" placeholder="请选择政治面貌">
+                        <el-option label="中共党员" value="中共党员"></el-option>
+                        <el-option label="中共预备党员" value="中共预备党员"></el-option>
+                        <el-option label="共青团员" value="共青团员"></el-option>
+                        <el-option label="群众" value="群众"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="性别"  prop="sex" label-width="100px">
+                    <el-radio-group v-model="editForm.sex">
+                        <el-radio :label="0">女</el-radio>
+                        <el-radio :label="1">男</el-radio>
+                    </el-radio-group>
                 </el-form-item>
 
                 <el-form-item label="状态"  prop="statu" label-width="100px">

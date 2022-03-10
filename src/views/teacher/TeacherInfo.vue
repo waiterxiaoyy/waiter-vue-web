@@ -40,6 +40,9 @@
                             <el-form-item>
                                 <el-button type="warning" icon="" @click="showFuture" v-if="hasAuth('mem:teac:add')">导入名单</el-button>
                             </el-form-item>
+                            <el-form-item>
+                                <el-button type="info" icon="el-icon-user" :disabled="multiSelStatu" v-if="hasAuth('sys:user:dist')" @click="distributeTeacUser(null)">分配用户</el-button>
+                            </el-form-item>
 
                             <el-form-item>
                                 <el-button type="danger" icon="el-icon-error" :disabled="multiSelStatu" v-if="hasAuth('mem:teac:delete')" @click="delHandle(null)">批量删除</el-button>
@@ -67,11 +70,20 @@
                         <el-table-column
                                 fixed
                                 prop="teacherName"
-                                label="教师姓名">
+                                label="教师姓名"
+                                width="120">
                         </el-table-column>
                         <el-table-column
                                 prop="teacherId"
-                                label="教师ID">
+                                label="教师ID"
+                                width="100">
+                        </el-table-column>
+                        <el-table-column
+                                prop="identity"
+                                label="教师身份" width="200px">
+                            <template slot-scope="scope">
+                                <el-tag size="small" type="warning" v-for="item in scope.row.identity" :key="item" style="margin-right:2px;margin-top: 2px;">{{item}}</el-tag>
+                            </template>
                         </el-table-column>
                         <el-table-column
                                 prop="beginTime"
@@ -84,7 +96,11 @@
                             <template slot-scope="scope">
                                 <el-button @click="" type="text" size="small">查看</el-button>
                                 <el-divider direction="vertical"></el-divider>
-                                <el-button type="text" size="small">编辑</el-button>
+                                <el-button type="text" size="small" @click="editHandle(scope.row)">编辑</el-button>
+                                <el-divider direction="vertical"></el-divider>
+                                <el-button type="text" size="small" @click="distributeTeacUser(scope.row)">分配用户</el-button>
+                                <el-divider direction="vertical"></el-divider>
+                                <el-button type="text" size="small" @click="distributeClss(scope.row)">分配班级</el-button>
                                 <el-divider direction="vertical"></el-divider>
                                 <template>
                                     <el-popconfirm title="此操作为危险操作，确定删除吗？" @confirm="delHandle(scope.row)">
@@ -113,6 +129,7 @@
             <el-form :model="editForm" :rules="formRules" ref="editForm" width="30%" label-width="80px">
                 <el-form-item label="选择专业" prop="casSelectData">
                     <el-cascader
+                            :disabled="changeClass"
                             width="100%"
                             style="width: 100%;"
                             v-model="editForm.casSelectData"
@@ -121,6 +138,10 @@
                             :props="optionProps"
                             @change="handleChange">
                     </el-cascader>
+                    <el-switch
+                            v-model="changeClass"
+                            inactive-text="修改班级">
+                    </el-switch>
                 </el-form-item>
                 <el-form-item label="教师ID" prop="teacherId">
                     <el-input v-model="editForm.teacherId" autocomplete="off"></el-input>
@@ -136,6 +157,16 @@
                             placeholder="选择日期">
                     </el-date-picker>
                 </el-form-item>
+                <el-form-item label="教师类型" prop="identity">
+                    <el-select v-model="editForm.identity" multiple placeholder="请选择">
+                        <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="当前状态" prop="statu" >
                     <el-radio-group v-model="editForm.statu">
                         <el-radio :label=0>禁用</el-radio>
@@ -145,7 +176,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="editDig = false">取 消</el-button>
-                <el-button type="primary" @click="addHandle('editForm')">确 定</el-button>
+                <el-button type="primary" @click="editTeacHandle('editForm')">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -213,6 +244,26 @@
                 },// 格式化工单信息
                 casData: [],
                 casSelectData: [],
+                options: [{
+                    value: '博士生导师',
+                    label: '博士生导师'
+                }, {
+                    value: '硕士生导师',
+                    label: '硕士生导师'
+                }, {
+                    value: '教授',
+                    label: '教授'
+                }, {
+                    value: '副教授',
+                    label: '副教授'
+                }, {
+                    value: '讲师',
+                    label: '讲师'
+                }, {
+                    value: '助教',
+                    label: '助教'
+                }],
+                changeClass: false
             }
         },
         created() {
@@ -226,8 +277,17 @@
         methods: {
             getClassTree() {
                 this.$axios.get("/mem/teac/getColMajorTree").then(res => {
-                    this.collegeClassTree = res.data.data
+                    this.collegeClassTree = res.data.data;
                     this.casData = this.getTreeData(res.data.data)
+                })
+            },
+            editHandle(scopeRow) {
+                this.$axios.get('/mem/teac/getTeacById/' + scopeRow.teacherId).then(res => {
+                    this.editForm = res.data.data;
+                    this.editForm.casSelectData = [];
+                    this.editForm.casSelectData.push(res.data.data.majorId);
+                    this.editDig = true;
+                    this.changeClass = true;
                 })
             },
 
@@ -240,9 +300,11 @@
                         size: this.size
                     }
                 }).then(res => {
-                    this.tableData = res.data.data.records
-                    this.total = res.data.data.total
+                    this.tableData = res.data.data.records;
+                    console.log(this.tableData)
+                    this.total = res.data.data.total;
                 })
+
             },
             filterNode(value, data) {
                 if (!value) return true;
@@ -322,25 +384,95 @@
                 return data;
             },
 
-            addHandle(formName) {
+            editTeacHandle(formName) {
                 this.$refs[formName].validate((valid)=> {
                     if(valid) {
                         this.editForm.majorId = this.editForm.casSelectData[this.editForm.casSelectData.length - 1]
 
-                        this.$axios.post('/mem/teac/addTeacher', this.editForm).then(res => {
-                            if(res.data.code == 200) {
-                                this.$notify({
-                                    showClose: true,
-                                    message: '添加成功',
-                                    type: 'success'
-                                });
-                                this.getMajorTeacherList()
-                                this.editForm = {}
-                                this.editDig = false
-                            }
-                        })
+                        if(this.editForm.id) {
+                            this.$axios.post('/mem/teac/updateTeac', this.editForm).then(res => {
+                                if(res.data.code == 200) {
+                                    this.$notify({
+                                        showClose: true,
+                                        message: '更新成功',
+                                        type: 'success'
+                                    });
+                                    this.getMajorTeacherList();
+                                    this.editForm = {};
+                                    this.editDig = false;
+                                }
+                            })
+                        } else {
+                            this.$axios.post('/mem/teac/addTeacher', this.editForm).then(res => {
+                                if(res.data.code == 200) {
+                                    this.$notify({
+                                        showClose: true,
+                                        message: '新增成功',
+                                        type: 'success'
+                                    });
+                                    this.getMajorTeacherList();
+                                    this.editForm = {};
+                                    this.editDig = false
+                                }
+                            })
+                        }
                     }
                 })
+            },
+            distributeTeacUser(select) {
+                if (select != null) {
+                    this.multipleSelection.push(select)
+                    let _this = this
+                    this.$confirm('此操作将分配此人员使用系统 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        _this.$axios.post('/sys/user/distributeTeacUser', this.multipleSelection).then(res => {
+                            if (res.data.code == 200) {
+                                this.getMajorTeacherList()
+                                this.multipleSelection = []
+                                this.$notify({
+                                    showClose: true,
+                                    message: '分配用户成功',
+                                    type: 'success'
+                                });
+                            }
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消分配'
+                        });
+                    });
+
+                } else {
+                    let _this = this
+                    this.$confirm('此操作将分配此人员使用系统, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        _this.$axios.post('/sys/user/distributeTeacUser', _this.multipleSelection).then(res => {
+                            if (res.data.code == 200) {
+                                this.getMajorTeacherList()
+                                this.$notify({
+                                    showClose: true,
+                                    message: '批量分配用户成功',
+                                    type: 'success'
+                                });
+                            }
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消分配'
+                        });
+                    });
+                }
+            },
+            distributeClss(scopeRow) {
+
             },
             delHandle(select) {
                 if(select != null) {
