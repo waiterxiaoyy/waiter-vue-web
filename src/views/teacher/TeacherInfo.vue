@@ -87,6 +87,7 @@
                         </el-table-column>
                         <el-table-column
                                 prop="beginTime"
+                                width="140"
                                 label="入职时间">
                         </el-table-column>
 
@@ -100,7 +101,7 @@
                                 <el-divider direction="vertical"></el-divider>
                                 <el-button type="text" size="small" @click="distributeTeacUser(scope.row)">分配用户</el-button>
                                 <el-divider direction="vertical"></el-divider>
-                                <el-button type="text" size="small" @click="distributeClss(scope.row)">分配班级</el-button>
+                                <el-button type="text" size="small" @click="distributeClass(scope.row)">分配班级</el-button>
                                 <el-divider direction="vertical"></el-divider>
                                 <template>
                                     <el-popconfirm title="此操作为危险操作，确定删除吗？" @confirm="delHandle(scope.row)">
@@ -177,6 +178,25 @@
             <div slot="footer" class="dialog-footer">
                 <el-button @click="editDig = false">取 消</el-button>
                 <el-button type="primary" @click="editTeacHandle('editForm')">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="分配班级" :visible.sync="distDig" width="30%" >
+            <el-form :model="distForm">
+
+                <el-tree
+                        :data="termCourseList"
+                        show-checkbox
+                        ref="termCourseList"
+                        :default-expand-all=false
+                        node-key="id"
+                        :check-strictly=true
+                        :props="defaultDistProps">
+                </el-tree>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="distDig = false">取 消</el-button>
+                <el-button type="primary" @click="submitDistClass('distForm')">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -263,11 +283,20 @@
                     value: '助教',
                     label: '助教'
                 }],
-                changeClass: false
+                changeClass: false,
+
+                distDig: false,
+                distForm: {},
+                termCourseList: [],
+                defaultDistProps: {
+                    children: 'children',
+                    label: 'name'
+                },
             }
         },
         created() {
-            this.getClassTree()
+            this.getClassTree();
+            this.getTermCourseList();
         },
         watch: {
             filterText(val) {
@@ -275,6 +304,11 @@
             }
         },
         methods: {
+            getTermCourseList() {
+                this.$axios.get("/course/getTermCourse").then(res=> {
+                    this.termCourseList = res.data.data;
+                })
+            },
             getClassTree() {
                 this.$axios.get("/mem/teac/getColMajorTree").then(res => {
                     this.collegeClassTree = res.data.data;
@@ -471,9 +505,35 @@
                     });
                 }
             },
-            distributeClss(scopeRow) {
+
+            distributeClass(scopeRow) {
+                this.$axios.get("/mem/teac/dist/" + scopeRow.id).then(res => {
+
+                    this.distForm = res.data.data;
+                    this.distDig = true;
+                    this.$nextTick(function() {
+                        this.$refs.termCourseList.setCheckedKeys(res.data.data.classIds)
+                    })
+
+                })
 
             },
+            submitDistClass(formName) {
+                var classIds = this.$refs.termCourseList.getCheckedKeys()
+
+                this.$axios.post('/mem/teac/dist/submit/' + this.distForm.id, classIds).then(res => {
+                    this.getMajorTeacherList();
+                    this.$notify({
+                        showClose: true,
+                        message: '分配班级成功',
+                        type: 'success'
+                    });
+                    this.distDig = false;
+                    this.resetForm(formName);
+
+                })
+            },
+
             delHandle(select) {
                 if(select != null) {
                     this.multipleSelection.push(select)

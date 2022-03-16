@@ -38,7 +38,7 @@
                             style="margin-bottom: 10px">
                     </el-alert>
                     <el-avatar
-                        style="width: 350px; height: 350px"
+                        style="width: 450px; height: 350px"
                         shape="square"
                         :src="faceUrl" >
 

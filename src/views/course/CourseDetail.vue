@@ -36,25 +36,25 @@
                                         课程教学
                                     </div>
                                     <div class="course-desc-info">
-                                        <div class="course-desc-info-avatar">
+                                        <div class="course-detail-desc-info-avatar">
                                             <el-avatar :size="80" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
                                         </div>
-                                        <div class="course-desc-info-abt">
-                                            <div class="course-desc-info-abt-desc">
-                                                <div class="course-desc-info-abt-desc-tittle">任课教师: </div>
-                                                <div class="course-desc-info-abt-desc-info">王小二</div>
+                                        <div class="course-detail-desc-info-abt">
+                                            <div class="course-detail-desc-info-abt-desc">
+                                                <div class="course-detail-desc-info-abt-desc-tittle">任课教师: </div>
+                                                <div class="course-detail-desc-info-abt-desc-info">王小二</div>
                                             </div>
-                                            <div class="course-desc-info-abt-desc">
-                                                <div class="course-desc-info-abt-desc-tittle">教师描述: </div>
-                                                <div class="course-desc-info-abt-desc-info">JavaEE开发与教学多年，精通JavaEE技术体系，对流行框架JQuery、DWR、Struts1/2，Hibernate，Spring，MyBatis、JBPM、Lucene等有深入研究。授课逻辑严谨，条理清晰，注重学生独立解决问题的能力。</div>
+                                            <div class="course-detail-desc-info-abt-desc">
+                                                <div class="course-detail-desc-info-abt-desc-tittle">教师描述: </div>
+                                                <div class="course-detail-desc-info-abt-desc-info">JavaEE开发与教学多年，精通JavaEE技术体系，对流行框架JQuery、DWR、Struts1/2，Hibernate，Spring，MyBatis、JBPM、Lucene等有深入研究。授课逻辑严谨，条理清晰，注重学生独立解决问题的能力。</div>
                                             </div>
-                                            <div class="course-desc-info-abt-desc">
-                                                <div class="course-desc-info-abt-desc-tittle">导师类别: </div>
-                                                <div class="course-desc-info-abt-desc-info">博士生导师、硕士生导师</div>
+                                            <div class="course-detail-desc-info-abt-desc">
+                                                <div class="course-detail-desc-info-abt-desc-tittle">导师类别: </div>
+                                                <div class="course-detail-desc-info-abt-desc-info">博士生导师、硕士生导师</div>
                                             </div>
-                                            <div class="course-desc-info-abt-desc">
-                                                <div class="course-desc-info-abt-desc-tittle">联系方式: </div>
-                                                <div class="course-desc-info-abt-desc-info">waiterxiaoyy@qq.com</div>
+                                            <div class="course-detail-desc-info-abt-desc">
+                                                <div class="course-detail-desc-info-abt-desc-tittle">联系方式: </div>
+                                                <div class="course-detail-desc-info-abt-desc-info">waiterxiaoyy@qq.com</div>
                                             </div>
 
                                         </div>
@@ -354,30 +354,30 @@
         display: flex;
     }
 
-    .course-desc-info-avatar {
+    .course-detail-desc-info-avatar {
         text-align: center;
         top: 50%;
         margin-top: 30px;
     }
 
-    .course-desc-info-abt {
+    .course-detail-desc-info-abt {
         flex: 1;
         margin-left: 10px;
 
     }
 
-    .course-desc-info-abt-desc {
+    .course-detail-desc-info-abt-desc {
         width: 100%;
         display: flex;
         margin: 10px 0 10px 0;
     }
 
-    .course-desc-info-abt-desc-tittle {
+    .course-detail-desc-info-abt-desc-tittle {
         font-size: 14px;
         width: 80px;
         font-weight: bold;
     }
-    .course-desc-info-abt-desc-info {
+    .course-detail-desc-info-abt-desc-info {
         flex: 1;
         font-size: 14px;
         padding-right: 1px;

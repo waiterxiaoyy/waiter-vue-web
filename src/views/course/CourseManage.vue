@@ -73,6 +73,8 @@
                             <el-divider v-if="scope.row.type == 0" direction="vertical"></el-divider>
                             <el-button type="text" style="color: #48d1cc" v-if="scope.row.type == 1" @click="editHandle(6, scope.row)">创建班级</el-button>
                             <el-divider v-if="scope.row.type == 1" direction="vertical"></el-divider>
+                            <el-button type="text" style="color: #ffd04b" v-if="scope.row.type == 2" @click="editHandle(11, scope.row)">选择学生</el-button>
+                            <el-divider v-if="scope.row.type == 2" direction="vertical"></el-divider>
 
                             <template>
                                 <el-popconfirm title="此操作为危险操作，是否确认删除" confirm-button-text="确认" cancel-button-text="取消" @confirm="delHandle(scope.row.id)">
@@ -92,7 +94,7 @@
             </el-col>
             <el-col :span="10">
                 <el-empty v-if="!selectCourse"  description="请选择课程"></el-empty>
-                <el-card v-if="selectCourse" shadow="hover" class="course-info">
+                <el-card v-if="selectCourse" shadow="hover" class="course-detail-info">
                     <!--操作栏 begin-->
                     <div class="handle-box">
                         <el-form :inline="true">
@@ -117,7 +119,7 @@
                             </el-form-item>
                         </el-form>
                     </div>
-                    <div class="course-abt">
+                    <div class="course-detail-abt">
                         <div class="course-abt-info"><span class="course-abt-pre">课程名称：</span>{{editCourseForm.name}}</div>
                         <div class="course-abt-info"><span class="course-abt-pre">所属学期：</span>{{editCourseForm.term}}</div>
                         <div class="course-abt-info"><span class="course-abt-pre">所属学院：</span>{{editCourseForm.college}}</div>
@@ -125,7 +127,7 @@
                             <el-tag size="small" v-if="editCourseForm.statu === 1" type="success">正常</el-tag>
                             <el-tag size="small" v-else-if="editCourseForm.statu === 0" type="danger">关闭</el-tag></div>
                     </div>
-                    <div class="course-desc">
+                    <div class="course-detail-desc">
                         <span class="course-abt-pre">描述：</span><span>{{editCourseForm.description}}</span>
                     </div>
                 </el-card>
@@ -301,10 +303,13 @@
             </span>
         </el-dialog>
 
+        <DistStudentDig :distDig.sync="distDig" :classId="classId"></DistStudentDig>
+
     </div>
 </template>
 
 <script>
+    import DistStudentDig from "./component/DistStudentDig";
     const courseType = [
         {
             name: "专业必修",
@@ -329,6 +334,7 @@
     ]
     export default {
         name: "CourseManage",
+        components: {DistStudentDig},
         data () {
             return {
                 termCourseList: [],
@@ -383,7 +389,10 @@
                 },
 
                 courseClassDig: false,
-                courseClassForm: {}
+                courseClassForm: {},
+                distDig: false,
+                classId: 0
+
 
             }
         },
@@ -582,7 +591,11 @@
                     const{data: res} = await this.$axios.get("/course/getTermById/" + this.editCourseForm.parentId);
                     this.courseClassForm.term = res.data.name;
                     this.courseClassDig = true;
+                }if(num == 11) {
+                   this.classId = scopeRow.id;
+                   this.distDig = true;
                 }
+
 
             },
 
@@ -708,15 +721,15 @@
         }
     }
 </script>
-<style>
+<style lang="scss">
     .handle-box {
     }
-    .course-info {
+    .course-detail-info {
         position: relative;
         width: 100%;
         margin-bottom: 10px;
     }
-    .course-abt {
+    .course-detail-abt {
         display: flex;
         width: 40%;
         float: left;
@@ -734,7 +747,7 @@
         font-weight: bold;
         color: #99a9bf;
     }
-    .course-desc {
+    .course-detail-desc {
         width: 60%;
         overflow: hidden;
     }
