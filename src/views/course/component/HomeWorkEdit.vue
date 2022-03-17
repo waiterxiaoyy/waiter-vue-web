@@ -7,7 +7,7 @@
             <el-col :span="8">
                 <el-form ref="editHomeWordForm" :model="editHomeWorkForm" label-width="80px">
                     <el-form-item label="作业标题">
-                        <el-input style="width: 100%" v-model="editHomeWorkForm.name"></el-input>
+                        <el-input style="width: 100%" v-model="editHomeWorkForm.title"></el-input>
                     </el-form-item>
                     <el-form-item label="开始时间">
                         <el-date-picker
@@ -34,24 +34,22 @@
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item>
-                        <el-upload
-                                class="upload-demo"
-                                action="#"
-                                :auto-upload="false"
-                                :on-change="handleChange"
-                                :on-remove="handleRemove"
-                                :before-remove="beforeRemove"
-                                multiple
-                                :limit="3"
-                                :on-exceed="handleExceed"
-                                :file-list="fileList">
-                            <el-button size="small" type="primary">上传文件</el-button>
-                            <div slot="tip" class="el-upload__tip">不超过100MB</div>
-                        </el-upload>
+<!--                        <el-upload-->
+<!--                                class="upload-demo"-->
+<!--                                action="#"-->
+<!--                                :auto-upload="false"-->
+<!--                                :on-change="handleChange"-->
+<!--                                :on-remove="handleRemove"-->
+<!--                                :before-remove="beforeRemove"-->
+<!--                                multiple-->
+<!--                                :limit="3"-->
+<!--                                :on-exceed="handleExceed"-->
+<!--                                :file-list="fileList">-->
+<!--                            <el-button size="small" type="primary" >上传文件</el-button>-->
+<!--                            <div slot="tip" class="el-upload__tip">不超过100MB</div>-->
+<!--                        </el-upload>-->
+                        <el-button size="small" type="primary" @click="showFuture">上传文件</el-button>
                     </el-form-item>
-
-
-
 
                 </el-form>
             </el-col>
@@ -62,7 +60,7 @@
                         <span>编辑作业内容</span>
                     </div>
                     <div class="edit-header-handler">
-                        <el-button type="primary" size="small">保存</el-button>
+                        <el-button type="primary" size="small" @click="editHandler()">保存</el-button>
                     </div>
                 </div>
                 <MyQuillEditor :value="editHomeWorkForm.content" @input="handleEditorChange"></MyQuillEditor>
@@ -83,31 +81,29 @@
                 type: Boolean
             },
             homeworkId: {
-                type: String
+                type: Number
             },
             isNew: {
                 type: Boolean
+            },
+            classId: {
+                type: Number
             }
         },
         components: {
             MyQuillEditor
         },
-        mounted() {
-            if (this.isNew == true) {
-                console.log(11)
-                this.editHomeWorkForm = {
-                    title: '',
-                    content: '',
-                    fileList: '',
-                    beginTime: '',
-                    endTime: '',
-                    statu: 1
-                }
-            }
+        created() {
         },
         data() {
             return {
-                editHomeWorkForm: {},
+                editHomeWorkForm: {
+                    title: '',
+                    statu: 0,
+                    beginTime: '',
+                    endTIme: '',
+                    content: '在这里输入作业内容'
+                },
                 uploadFileUrl: this.$MyComm.baseURL + '/m',
                 uploadHeaders: {
                     Authorization: localStorage.getItem('token')
@@ -129,14 +125,17 @@
             },
             isNew: {
                 handler(newValue) {
-                    this.isNew = newValue
-                    this.editHomeWorkForm = {
-                        title: '',
-                        content: '',
-                        fileList: {},
-                        beginTime: '',
-                        endTime: '',
-                        statu: 1
+                    this.isNew = newValue;
+                    if (this.isNew == true) {
+                        this.editHomeWorkForm = {
+                            title: '',
+                            statu: 0,
+                            beginTime: '',
+                            endTIme: '',
+                            content: '在这里输入作业内容'
+                        }
+                    } else {
+                        this.getHomeWorkById(this.homeworkId)
                     }
                 }
             }
@@ -145,7 +144,6 @@
         methods: {
             handleBeforeClose() {
                 this.$emit('update:homeworkEditDig', false)
-                // this.$emit('update:isNew', false)
             },
             handleEditorChange(newValue) {
                 this.editHomeWorkForm.content = newValue
@@ -164,6 +162,23 @@
             },
             beforeRemove(file, fileList) {
                 return this.$confirm(`确定移除 ${file.name}？`);
+            },
+            getHomeWorkById(id) {
+                this.$axios.get('/homework/getHomeWorkById/' + id).then(res=>{
+                    this.editHomeWorkForm = res.data.data;
+                })
+            },
+            editHandler() {
+                this.editHomeWorkForm.classId = this.classId;
+                this.$axios.post('/homework/' + (this.isNew ? 'save':'update'), this.editHomeWorkForm).then(res=> {
+                    this.homeworkEditDig = false;
+                    this.$notify({
+                        showClose: true,
+                        message: '操作成功',
+                        type: 'success',
+                    });
+                    this.handleBeforeClose()
+                })
             }
         }
     }

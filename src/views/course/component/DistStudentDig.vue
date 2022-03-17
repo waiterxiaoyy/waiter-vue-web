@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="distDig" width="60%">
+    <el-dialog :visible.sync="distDig" :before-close="handleClose" width="60%">
         <el-row :gutter="20">
             <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="5" style="margin-bottom: 10px;">
                 <el-input
@@ -33,7 +33,7 @@
                         </el-form-item>
 
                         <el-form-item>
-                            <el-button type="info" icon="el-icon-user" :disabled="multiSelStatu" @click="distStudentHandler()">批量分配学生
+                            <el-button type="warning" icon="el-icon-user" :disabled="multiSelStatu" @click="distStudentHandler()">批量分配学生
                             </el-button>
                         </el-form-item>
 
@@ -122,6 +122,9 @@
             }
         },
         methods: {
+            handleClose() {
+                this.$emit('update:distDig', false)
+            },
             getClassTree() {
                 this.$axios.get("/mem/stu/getcctree").then(res => {
                     this.collegeClassTree = res.data.data

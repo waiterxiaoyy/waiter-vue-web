@@ -134,7 +134,7 @@
                 <div class="class-page" v-if="courseClassList.length > 0">
 
                     <div class="c-list">
-                        <div class="c-item" v-for="(item,index) in courseClassList" :key="index" @click="$router.push({name: 'CoursesInfo', query: {id: item.id}})">
+                        <div class="c-item" v-for="(item,index) in courseClassList" :key="index" @click="routerToClassDetail(item.parentId, item.id)">
                             <img class="cover" :src="item.image" alt="">
                             <div class="item-r">
                                 <div>
@@ -683,10 +683,10 @@
             rowClickHandler(row,column, event) {
                 if(row.type == 1) {
                     this.searchForm.query = '';
-                    this.courseHanler(row.id);
+                    this.courseHandler(row.id);
                 } else if(row.type == 2) {
                     this.searchForm.query = row.name;
-                    this.courseHanler(row.parentId)
+                    this.courseHandler(row.parentId)
                 } else {
                     this.searchForm.query = '';
                     this.selectCourse = false;
@@ -694,7 +694,7 @@
                 }
             },
 
-            async courseHanler(id) {
+            async courseHandler(id) {
                 const{data: res} = await this.$axios.get("/course/getCourseById/" + id);
                 const{data: res1} = await this.$axios.get("/course/getTermById/" + res.data.parentId);
                 const{data: res2} = await this.$axios.get("/course/getCourseCollege/" + res.data.collegeId);
@@ -717,6 +717,9 @@
                     this.courseClassList[i].image = this.$MyComm.baseURL + this.editCourseForm.image;
                     this.courseClassList[i].description = this.editCourseForm.description;
                 }
+            },
+            routerToClassDetail(courseId, classId) {
+                this.$router.push({path:'/course/class/detail',query: {courseId: courseId, classId: classId}})
             }
         }
     }

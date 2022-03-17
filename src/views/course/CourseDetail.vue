@@ -8,11 +8,11 @@
                 <el-row>
                     <div class="course-abt">
                         <div class="course-title">
-                            软件工程教学班1
+                            {{courseInfo.name}}
                         </div>
 
                         <div class="course-info">
-                            <span><i class="el-icon-s-custom"></i> 王小二</span><el-divider direction="vertical"></el-divider>
+                            <span><i class="el-icon-s-custom"></i> {{teacherInfo.teacherName}}</span><el-divider direction="vertical"></el-divider>
                             <span><i class="el-icon-orange"></i> 59人</span>
                         </div>
                         <el-divider></el-divider>
@@ -27,7 +27,7 @@
                                         课程简介
                                     </div>
                                     <div class="course-desc-info">
-                                        本课程介绍编程语言的基本概念，重点介绍函数式编程。本课程使用的语言ML，球拍，红宝石作为教学概念的车辆，但真正的意图是教足够的关于如何任何语言“合在一起”，使您更有效的编程在任何语言-和学习新的...
+                                        {{courseInfo.description}}
                                     </div>
                                 </div>
 
@@ -37,12 +37,16 @@
                                     </div>
                                     <div class="course-desc-info">
                                         <div class="course-detail-desc-info-avatar">
-                                            <el-avatar :size="80" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
+                                            <el-avatar :size="80" :src="courseInfo.image"></el-avatar>
                                         </div>
                                         <div class="course-detail-desc-info-abt">
                                             <div class="course-detail-desc-info-abt-desc">
+                                                <div class="course-detail-desc-info-abt-desc-tittle">开课学院: </div>
+                                                <div class="course-detail-desc-info-abt-desc-info">{{courseInfo.college}}</div>
+                                            </div>
+                                            <div class="course-detail-desc-info-abt-desc">
                                                 <div class="course-detail-desc-info-abt-desc-tittle">任课教师: </div>
-                                                <div class="course-detail-desc-info-abt-desc-info">王小二</div>
+                                                <div class="course-detail-desc-info-abt-desc-info">{{teacherInfo.teacherName}}</div>
                                             </div>
                                             <div class="course-detail-desc-info-abt-desc">
                                                 <div class="course-detail-desc-info-abt-desc-tittle">教师描述: </div>
@@ -50,7 +54,7 @@
                                             </div>
                                             <div class="course-detail-desc-info-abt-desc">
                                                 <div class="course-detail-desc-info-abt-desc-tittle">导师类别: </div>
-                                                <div class="course-detail-desc-info-abt-desc-info">博士生导师、硕士生导师</div>
+                                                <div class="course-detail-desc-info-abt-desc-info">{{teacherInfo.identityStr}}</div>
                                             </div>
                                             <div class="course-detail-desc-info-abt-desc">
                                                 <div class="course-detail-desc-info-abt-desc-tittle">联系方式: </div>
@@ -70,24 +74,22 @@
                                     <el-form :inline="true">
                                         <el-form-item>
                                             <el-input
-                                                    v-model="searchForm.username"
-                                                    placeholder="用户名"
+                                                    v-model="searchForm.query"
+                                                    placeholder="作业标题"
                                                     clearable
                                             >
                                             </el-input>
                                         </el-form-item>
 
                                         <el-form-item>
-                                            <el-button @click="" icon="el-icon-search">搜索</el-button>
+                                            <el-button @click="" icon="el-icon-search" @click="getHomeworkList">搜索</el-button>
                                         </el-form-item>
 
                                         <el-form-item>
-                                            <el-button type="primary" @click="handleHomeWorkEdit(true)" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
+                                            <el-button type="primary" @click="handleHomeWorkEdit(true, 0)" v-if="hasAuth('sys:user:save')" icon="el-icon-circle-plus-outline">新增</el-button>
                                         </el-form-item>
                                         <el-form-item>
-                                            <el-popconfirm title="这是确定批量删除吗？" @confirm="delHandle(null)">
-                                                <el-button type="danger" slot="reference" :disabled="delBtlStatu" v-if="hasAuth('sys:user:delete')">批量删除</el-button>
-                                            </el-popconfirm>
+                                            <el-button type="warning" icon="el-icon-refresh" @click="getHomeworkList" >刷新</el-button>
                                         </el-form-item>
                                     </el-form>
                                 </div>
@@ -98,11 +100,11 @@
                                         <el-table-column type="expand">
                                             <template slot-scope="props">
                                                 <el-form label-position="left" inline class="demo-table-expand">
-                                                    <el-form-item label="发布人">
-                                                        <span>{{ props.row.teacherName }}</span>
-                                                    </el-form-item>
-                                                    <el-form-item label="发布时间">
+                                                    <el-form-item label="开始收集时间">
                                                         <span>{{ props.row.beginTime }}</span>
+                                                    </el-form-item>
+                                                    <el-form-item label="创建时间">
+                                                        <span>{{ props.row.created }}</span>
                                                     </el-form-item>
                                                 </el-form>
                                             </template>
@@ -119,7 +121,7 @@
                                         </el-table-column>
 
                                         <el-table-column
-                                                prop="homeworkTitle"
+                                                prop="title"
                                                 label="作业标题">
                                         </el-table-column>
                                         <el-table-column
@@ -131,7 +133,7 @@
                                                 width="220"
                                                 align="center">
                                             <template slot-scope="scope">
-                                                <el-button type="text" @click="editHandle(scope.row.id)">编辑</el-button>
+                                                <el-button type="text" @click="handleHomeWorkEdit(false,scope.row.id)">编辑</el-button>
                                                 <el-divider direction="vertical"></el-divider>
                                                 <el-button type="text" @click="editHandle(scope.row.id)">详情</el-button>
                                                 <el-divider direction="vertical"></el-divider>
@@ -145,14 +147,30 @@
                                                 </template>
 
                                             </template>
-
-
                                         </el-table-column>
                                     </el-table>
                                 </div>
                             </el-tab-pane>
                             <el-tab-pane label="考勤情况" name="third">考勤情况</el-tab-pane>
-                            <el-tab-pane label="班级成员" name="fourth">班级成员</el-tab-pane>
+                            <el-tab-pane label="班级成员" name="fourth">
+                                <el-table
+                                        :data="studentList"
+                                        style="width: 100%">
+                                    <el-table-column
+                                        type="index"
+                                    width="50">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="studentId"
+                                            label="学生学号"
+                                    width="200">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="studentName"
+                                            label="学生姓名" width="200">
+                                    </el-table-column>
+                                </el-table>
+                            </el-tab-pane>
                         </el-tabs>
                     </div>
                 </el-row>
@@ -233,7 +251,7 @@
 
             </el-col>
         </el-row>
-        <HomeWorkEdit :homeworkEditDig.sync="homeworkEditDig" :homeworkId.sync="homeworkId" :isNew.sync="isNew"></HomeWorkEdit>
+        <HomeWorkEdit :homeworkEditDig.sync="homeworkEditDig" :homeworkId.sync="homeworkId" :isNew.sync="isNew" :classId="classId"></HomeWorkEdit>
     </div>
 </template>
 
@@ -245,23 +263,14 @@
         components: {HomeWorkEdit, MyQuillEditor},
         data() {
             return {
-                activeName: 'second',
-                homeworkTable: [
-                    {
-                        homeworkTitle: '第一周第一次作业',
-                        statu: 1,
-                        teacherName: '王小二',
-                        beginTime: '2021-10-21',
-                        endTime: '2021-10-21',
-                    },
-                    {
-                        homeworkTitle: '第一周第一次作业',
-                        statu: 0,
-                        teacherName: '王小二',
-                        beginTime: '2021-10-21',
-                        endTime: '2021-10-21',
-                    }
-                ],
+                courseId: 0,
+                classId: 0,
+                courseInfo:{},
+                teacherInfo: {},
+                studentList: {},
+
+                activeName: 'first',
+                homeworkTable: [],
                 delBtlStatu: true,
                 searchForm: {},
                 dialogVisible: false,
@@ -275,14 +284,38 @@
                     type: 0
                 },
                 homeworkEditDig: false,
-                homeworkId: '',
-                isNew: false
+                homeworkId: 0,
+                isNew: true
 
             }
         },
+        created() {
+            this.courseId = Number(this.$route.query.courseId);
+            this.classId = Number(this.$route.query.classId);
+            this.courseHandler(this.courseId);
+            this.teacherHandler(this.classId);
+            this.getHomeworkList();
+            this.homeworkEditDig = false;
+        },
         methods: {
             goBack() {
-                console.log('go back');
+                this.$router.push('/course/courseset');
+            },
+            async courseHandler(id) {
+                const{data: res} = await this.$axios.get("/course/getCourseById/" + id);
+                const{data: res1} = await this.$axios.get("/course/getTermById/" + res.data.parentId);
+                const{data: res2} = await this.$axios.get("/course/getCourseCollege/" + res.data.collegeId);
+                this.courseInfo = res.data;
+                this.courseInfo.image = this.$MyComm.baseURL + this.courseInfo.image;
+                this.courseInfo.term = res1.data.name;
+                this.courseInfo.college = res2.data.name;
+            },
+            async teacherHandler(classId) {
+                const{data: res} = await this.$axios.get("/mem/teac/getTeacherByClassId/" + classId);
+
+                const{data: res1} = await this.$axios.get("/course/getClassStudent/" + classId);
+                this.teacherInfo = res.data;
+                this.studentList = res1.data;
             },
             handleClick(tab, event) {
                 console.log(tab, event);
@@ -293,12 +326,19 @@
             handleEditorChange(newValue) {
                 this.commentEditForm.content = newValue
             },
-            handleHomeWorkEdit(isNew) {
-                if(isNew) {
-                    this.homeworkId = ''
-                }
+            handleHomeWorkEdit(isNew, homeworkId) {
+                this.homeworkId = homeworkId;
                 this.isNew = isNew;
                 this.homeworkEditDig = true
+            },
+            async getHomeworkList() {
+                const{data: res} = await this.$axios.get('/homework/getHomeworkByClassId/', {
+                    params: {
+                        title: this.searchForm.query,
+                        classId: this.classId
+                    }
+                })
+                this.homeworkTable = res.data;
             }
 
         }

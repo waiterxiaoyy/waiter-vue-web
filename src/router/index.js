@@ -26,6 +26,11 @@ const routes = [
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/page/user/center'),
                 meta: { title: '用户中心' }
             },
+            {
+                path: '/course/class/detail',
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/course/CourseDetail'),
+                meta: { title: '课程详情' }
+            },
             // {
             //     path: '/sys/student/studentinfo',
             //     component: () => import(/* webpackChunkName: "dashboard" */ '../views/student/StudentInfo'),
