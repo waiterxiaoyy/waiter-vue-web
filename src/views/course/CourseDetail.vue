@@ -135,13 +135,13 @@
                                             <template slot-scope="scope">
                                                 <el-button type="text" @click="handleHomeWorkEdit(false,scope.row.id)">编辑</el-button>
                                                 <el-divider direction="vertical"></el-divider>
-                                                <el-button type="text" @click="editHandle(scope.row.id)">详情</el-button>
+                                                <el-button type="text" @click="handleHomewordDetail(scope.row.id)">详情</el-button>
                                                 <el-divider direction="vertical"></el-divider>
-                                                <el-button type="text" @click="editHandle(scope.row.id)">完成情况</el-button>
+                                                <el-button type="text" @click="handleHomewordDetail(scope.row.id)">完成情况</el-button>
                                                 <el-divider direction="vertical"></el-divider>
 
                                                 <template>
-                                                    <el-popconfirm title="此操作为危险操作，确认删除吗？" confirm-button-text="确认" cancel-button-text="取消" @onConfirm="delHandle(scope.row.id)">
+                                                    <el-popconfirm title="此操作为危险操作，确认删除吗？" confirm-button-text="确认" cancel-button-text="取消" @confirm="delHomeworkHandle(scope.row.id)">
                                                         <el-button type="text" slot="reference">删除</el-button>
                                                     </el-popconfirm>
                                                 </template>
@@ -252,15 +252,17 @@
             </el-col>
         </el-row>
         <HomeWorkEdit :homeworkEditDig.sync="homeworkEditDig" :homeworkId.sync="homeworkId" :isNew.sync="isNew" :classId="classId"></HomeWorkEdit>
+        <HomeworkDetail :homeworkDetailDig.sync="homeworkDetailDig" :homeworkId.sync="homeworkId"></HomeworkDetail>
     </div>
 </template>
 
 <script>
     import MyQuillEditor from "../../components/quill/MyQuillEditor";
     import HomeWorkEdit from "./component/HomeWorkEdit";
+    import HomeworkDetail from "./component/HomeworkDetail";
     export default {
         name: "CourseDetail",
-        components: {HomeWorkEdit, MyQuillEditor},
+        components: {HomeworkDetail, HomeWorkEdit, MyQuillEditor},
         data() {
             return {
                 courseId: 0,
@@ -285,7 +287,11 @@
                 },
                 homeworkEditDig: false,
                 homeworkId: 0,
-                isNew: true
+                isNew: true,
+
+                homeworkDetailDig: false
+
+
 
             }
         },
@@ -339,6 +345,19 @@
                     }
                 })
                 this.homeworkTable = res.data;
+            },
+            delHomeworkHandle(id) {
+                this.$axios.get("/homework/delete/" + id).then(res=> {
+                    this.$notify({
+                        showClose: true,
+                        message: '删除成功',
+                        type: 'success',
+                    });
+                })
+            },
+            handleHomewordDetail(id) {
+                this.homeworkId = id;
+                this.homeworkDetailDig = true;
             }
 
         }
