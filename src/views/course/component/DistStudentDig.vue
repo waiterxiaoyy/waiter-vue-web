@@ -67,16 +67,16 @@
                             label="学号">
                     </el-table-column>
                 </el-table>
-                <el-pagination
-                        @size-change="handleSizeChange"
-                        @current-change="handleCurrentChange"
-                        :page-sizes="[10, 20, 50, 100]"
-                        :current-page="current"
-                        :page-size="size"
-                        style="margin-top: 15px"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        :total="total">
-                </el-pagination>
+<!--                <el-pagination-->
+<!--                        @size-change="handleSizeChange"-->
+<!--                        @current-change="handleCurrentChange"-->
+<!--                        :page-sizes="[10, 20, 50, 100]"-->
+<!--                        :current-page="current"-->
+<!--                        :page-size="size"-->
+<!--                        style="margin-top: 15px"-->
+<!--                        layout="total, sizes, prev, pager, next, jumper"-->
+<!--                        :total="total">-->
+<!--                </el-pagination>-->
             </el-col>
         </el-row>
     </el-dialog>
@@ -92,7 +92,7 @@
         data() {
             return {
                 total: 0,
-                size: 10,
+                size: 1000,
                 current: 1,
 
                 searchForm: {},

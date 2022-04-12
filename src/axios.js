@@ -3,6 +3,7 @@ import router from './router'
 import { Notification } from 'element-ui';
 
 axios.defaults.baseURL = "http://localhost:8081"
+// axios.defaults.baseURL = "http://172.27.184.8:8081"
 
 
 

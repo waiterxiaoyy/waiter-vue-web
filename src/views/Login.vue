@@ -64,7 +64,7 @@
                 cookiePass: '',
                 loginForm: {
                     username: 'admin',
-                    password: '111111',
+                    password: '888888',
                     code: '',
                     token: ''
                 },

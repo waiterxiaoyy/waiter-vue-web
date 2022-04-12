@@ -182,70 +182,85 @@
                         <el-divider></el-divider>
                     </div>
                     <div class="comment-main" >
-                        <template v-for="i in count">
+                        <div v-if="commentList.length <= 0">
+
+                            <el-empty  description="暂无评论"></el-empty>
+                        </div>
+                        <template v-for="comment in commentList">
                             <div class="comment-item">
                                 <div class="comment-user">
                                     <div class="comment-user-avatar">
                                         <el-avatar :size="30" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
                                     </div>
                                     <div class="comment-user-name">
-                                        王小二
+                                        {{comment.username}}
                                     </div>
                                     <div class="comment-user-time">
-                                        2021-10-28 15:00:00
+                                        {{comment.created}}
                                     </div>
                                 </div>
                                 <div class="comment-content">
                                     <div class="ql-editor">
-                                        <div v-html="commentEditForm.content"></div>
+                                        <div v-html="comment.content"></div>
                                     </div>
                                 </div>
                                 <div class="comment-handle">
-                                    <el-button style="margin-right: 3px" type="text">回复 </el-button>
+                                    <el-button style="margin-right: 3px" type="text" v-if="hasAuth('course:home:comment:reply')" @click="replyComment(comment.id)">回复 </el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button style="margin-left: 3px;margin-right: 3px" type="text"> 删除</el-button>
-                                    <el-divider direction="vertical"></el-divider>
-                                    <el-button style="margin-left: 3px" type="text"> 禁出</el-button>
+                                    <el-button style="margin-left: 3px;margin-right: 3px" type="text" v-if="hasAuth('course:home:comment:delete')" @click="deleteComment(comment.id)"> 删除</el-button>
+<!--                                    <el-divider direction="vertical"></el-divider>-->
+<!--                                    <el-button style="margin-left: 3px" type="text"> 禁出</el-button>-->
                                 </div>
                             </div>
-                            <div class="comment-subItem">
-                                <el-divider><span style="color: #20b2aa">以下是老师回复</span></el-divider>
-                                <div class="comment-item">
-                                    <div class="comment-user">
-                                        <div class="comment-user-avatar">
-                                            <el-avatar :size="30" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
-                                        </div>
-                                        <div class="comment-user-name">
-                                            王小二
-                                        </div>
-                                        <div class="comment-user-time">
-                                            2021-10-28 15:00:00
-                                        </div>
-                                    </div>
-                                    <div class="comment-content">
-                                        <h2>I am Example</h2>
-                                    </div>
-                                    <div class="comment-handle">
-                                        <el-button style="margin-right: 3px" type="text"> 删除</el-button>
-                                    </div>
-                                </div>
 
-                            </div>
+
+                            <template v-if="comment.children.length > 0">
+                                <el-divider><span style="color: #20b2aa">以下是老师回复</span></el-divider>
+                                <template v-for="subCmoment in comment.children">
+                                    <div class="comment-subItem">
+
+                                        <div class="comment-item">
+                                            <div class="comment-user">
+                                                <div class="comment-user-avatar">
+                                                    <el-avatar :size="30" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"></el-avatar>
+                                                </div>
+                                                <div class="comment-user-name">
+                                                    {{subCmoment.username}}
+                                                </div>
+                                                <div class="comment-user-time">
+                                                    {{subCmoment.created}}
+                                                </div>
+                                            </div>
+                                            <div class="comment-content">
+                                                <div class="ql-editor">
+                                                    <div v-html="subCmoment.content"></div>
+                                                </div>
+                                            </div>
+                                            <div class="comment-handle">
+                                                <el-button style="margin-right: 3px" type="text" v-if="hasAuth('course:home:comment:delete')" @click="deleteComment(subCmoment.id)"> 删除</el-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </template>
                             <el-divider></el-divider>
                         </template>
-                        <el-pagination
-                                background
-                                :page-sizes="[100, 200, 300, 400]"
-                                :page-size="100"
-                                layout="sizes, prev, pager, next"
-                                :total="1000"
-                                :pager-count="5">
-                        </el-pagination>
+<!--                        <el-pagination-->
+<!--                                background-->
+<!--                                :page-sizes="[10, 20, 50, 100]"-->
+<!--                                :page-size="10"-->
+<!--                                layout="sizes, prev, pager, next"-->
+<!--                                :total="1000"-->
+<!--                                :pager-count="4">-->
+<!--                        </el-pagination>-->
 
                     </div>
 
                     <div class="comment-editor">
-                        <MyQuillEditor :value="commentEditForm.content" @input="handleEditorChange"></MyQuillEditor>
+                        <div v-if="commentShow == true">
+                            <MyQuillEditor :value="commentEditForm.content" @input="handleEditorChange"></MyQuillEditor>
+                        </div>
+                        <el-button style="margin: 5px 5px 5px 0;width:100%" type="info" @click="submitComment">发布评论</el-button>
                     </div>
                 </div>
 
@@ -278,10 +293,11 @@
                 dialogVisible: false,
                 count: 2,
                 commentEditForm: {
+                    parentId: 0,
                     content: '默认内容',
                     commentId: '',
                     userId: '',
-                    courseId: '',
+                    classId: '',
                     statu: 1,
                     type: 0
                 },
@@ -289,9 +305,10 @@
                 homeworkId: 0,
                 isNew: true,
 
-                homeworkDetailDig: false
+                homeworkDetailDig: false,
 
-
+                commentList:[],
+                commentShow: false
 
             }
         },
@@ -302,6 +319,7 @@
             this.teacherHandler(this.classId);
             this.getHomeworkList();
             this.homeworkEditDig = false;
+            this.getClassComment();
         },
         methods: {
             goBack() {
@@ -358,6 +376,47 @@
             handleHomewordDetail(id) {
                 this.homeworkId = id;
                 this.homeworkDetailDig = true;
+            },
+
+            getClassComment() {
+                this.$axios.get("/course/comment/getClassComment/" + this.classId).then(res=>{
+                    this.commentList  = res.data.data
+                })
+            },
+            replyComment(parentId) {
+                if(this.commentShow == false) {
+                    this.commentShow = true;
+                }
+                this.commentEditForm.parentId = parentId;
+            },
+
+            submitComment() {
+
+                if(this.commentShow == false) {
+                    this.commentShow = true;
+                    return
+                }
+                this.commentEditForm.classId = this.classId
+                // console.log(localStorage.getItem("user"))
+
+                this.$axios.post("/course/comment/submit", this.commentEditForm).then(res=>{
+                    this.$notify({
+                        showClose: true,
+                        message: '发布评论成功',
+                        type: 'success',
+                    });
+                    this.getClassComment()
+                })
+            },
+                deleteComment(id) {
+                this.$axios.get("/course/comment/deleteComment/" + id).then(res=>{
+                    this.$notify({
+                        showClose: true,
+                        message: '删除成功',
+                        type: 'success',
+                    });
+                    this.getClassComment()
+                })
             }
 
         }

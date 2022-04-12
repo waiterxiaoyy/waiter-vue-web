@@ -83,7 +83,6 @@
                                     <el-button type="text" v-if="scope.row.type == 2" style="color: #ffd04b" slot="reference">删除</el-button>
                                 </el-popconfirm>
 
-
                             </template>
 
                         </template>
