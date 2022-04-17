@@ -83,8 +83,11 @@
 </template>
 
 <script>
+    import myMixin from "../../../globalFun";
+
     export default {
         name: "DistStudentDig",
+        mixins: [myMixin],
         props: {
             distDig: Boolean,
             classId: Number
@@ -114,7 +117,9 @@
             }
         },
         created() {
-            this.getClassTree()
+            if(this.hasAuth("mem:stu:list")) {
+                this.getClassTree()
+            }
         },
         watch: {
             filterText(val) {

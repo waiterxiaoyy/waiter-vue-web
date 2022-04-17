@@ -309,6 +309,7 @@
 
 <script>
     import DistStudentDig from "./component/DistStudentDig";
+    import myMixin from '../../globalFun.js'
     const courseType = [
         {
             name: "专业必修",
@@ -334,6 +335,7 @@
     export default {
         name: "CourseManage",
         components: {DistStudentDig},
+        mixins: [myMixin],
         data () {
             return {
                 termCourseList: [],
@@ -391,22 +393,17 @@
                 courseClassForm: {},
                 distDig: false,
                 classId: 0
-
-
             }
         },
         created() {
-          var info =  {
-              h_cover: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-              title: '软件工程教学班1',
-              abstract: '本课程介绍编程语言的基本概念，重点介绍函数式编程...',
-              page_count: 1,
-              view_count: 100
-          };
-          for(var i = 0; i < 0; i++) {
-              this.courseClassList.push(info)
+
+          if(this.hasRole("ROLE_admin")) {
+              this.getTermCourseList();
+          } else if(this.hasRole("ROLE_student")) {
+              this.getStuTermCourseList();
+          } else if(this.hasRole("ROLE_teacher")) {
+              this.getTeacTermCourseList();
           }
-          this.getTermCourseList()
         },
         computed: {
             treeData:function(){
@@ -482,7 +479,16 @@
                     this.termCourseList = res.data.data;
                 })
             },
-
+            getStuTermCourseList() {
+                this.$axios.get("/course/getStuTermCourseList").then(res=> {
+                    this.termCourseList = res.data.data;
+                })
+            },
+            getTeacTermCourseList() {
+                this.$axios.get("/course/getTeacTermCourseList").then(res=> {
+                    this.termCourseList = res.data.data;
+                })
+            },
             getTermList() {
                 this.$axios.get('/course/getTermList').then(res=>{
                     this.termList = res.data.data
@@ -681,6 +687,9 @@
             },
             rowClickHandler(row,column, event) {
                 if(row.type == 1) {
+                    if(!this.hasAuth("course:manage:set")) {
+                        return
+                    }
                     this.searchForm.query = '';
                     this.courseHandler(row.id);
                 } else if(row.type == 2) {

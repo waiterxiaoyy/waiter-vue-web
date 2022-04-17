@@ -100,81 +100,81 @@
                                 </el-form-item>
                             </el-form>
                         </el-tab-pane>
-                        <!--    我的成绩    -->
-                        <el-tab-pane label="我的成绩" name="second">
-                            <!--操作栏 begin-->
-                            <div class="handle-box">
-                                <el-dropdown>
-                                    <el-button type="primary">
-                                        选择学期<i class="el-icon-arrow-down el-icon--right"></i>
-                                    </el-button>
-                                    <el-dropdown-menu slot="dropdown">
-                                        <el-dropdown-item>黄金糕</el-dropdown-item>
-                                        <el-dropdown-item>狮子头</el-dropdown-item>
-                                        <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                                        <el-dropdown-item>双皮奶</el-dropdown-item>
-                                        <el-dropdown-item>蚵仔煎</el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </el-dropdown>
-                                <el-tag style="margin-left: 15px" size="medium" color="#00d1b2" effect="dark">
-                                    2020-2021-1
-                                </el-tag>
-                            </div>
-                            <el-table
-                                    :data="grade"
-                                    style="width: 100%"
-                                    :row-class-name="tableRowClassName">
-                                <el-table-column
-                                        prop="term"
-                                        label="学期"
-                                        width="100">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="courseid"
-                                        label="课程号"
-                                        width="100">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="course"
-                                        label="课程名称"
-                                        width="150">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="regularScore"
-                                        label="平时成绩"
-                                        align="center">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="experimentScore"
-                                        label="实验成绩"
-                                        align="center">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="finalScore"
-                                        label="期末成绩"
-                                        align="center">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="credit"
-                                        label="学分"
-                                        align="center">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="coursecategory"
-                                        label="课程属性"
-                                        align="center">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="courseNature"
-                                        label="课程性质"
-                                        align="center">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="examNature"
-                                        label="考试性质">
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
+<!--                        &lt;!&ndash;    我的成绩    &ndash;&gt;-->
+<!--                        <el-tab-pane label="我的成绩" name="second">-->
+<!--                            &lt;!&ndash;操作栏 begin&ndash;&gt;-->
+<!--                            <div class="handle-box">-->
+<!--                                <el-dropdown>-->
+<!--                                    <el-button type="primary">-->
+<!--                                        选择学期<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
+<!--                                    </el-button>-->
+<!--                                    <el-dropdown-menu slot="dropdown">-->
+<!--                                        <el-dropdown-item>黄金糕</el-dropdown-item>-->
+<!--                                        <el-dropdown-item>狮子头</el-dropdown-item>-->
+<!--                                        <el-dropdown-item>螺蛳粉</el-dropdown-item>-->
+<!--                                        <el-dropdown-item>双皮奶</el-dropdown-item>-->
+<!--                                        <el-dropdown-item>蚵仔煎</el-dropdown-item>-->
+<!--                                    </el-dropdown-menu>-->
+<!--                                </el-dropdown>-->
+<!--                                <el-tag style="margin-left: 15px" size="medium" color="#00d1b2" effect="dark">-->
+<!--                                    2020-2021-1-->
+<!--                                </el-tag>-->
+<!--                            </div>-->
+<!--                            <el-table-->
+<!--                                    :data="grade"-->
+<!--                                    style="width: 100%"-->
+<!--                                    :row-class-name="tableRowClassName">-->
+<!--                                <el-table-column-->
+<!--                                        prop="term"-->
+<!--                                        label="学期"-->
+<!--                                        width="100">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="courseid"-->
+<!--                                        label="课程号"-->
+<!--                                        width="100">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="course"-->
+<!--                                        label="课程名称"-->
+<!--                                        width="150">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="regularScore"-->
+<!--                                        label="平时成绩"-->
+<!--                                        align="center">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="experimentScore"-->
+<!--                                        label="实验成绩"-->
+<!--                                        align="center">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="finalScore"-->
+<!--                                        label="期末成绩"-->
+<!--                                        align="center">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="credit"-->
+<!--                                        label="学分"-->
+<!--                                        align="center">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="coursecategory"-->
+<!--                                        label="课程属性"-->
+<!--                                        align="center">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="courseNature"-->
+<!--                                        label="课程性质"-->
+<!--                                        align="center">-->
+<!--                                </el-table-column>-->
+<!--                                <el-table-column-->
+<!--                                        prop="examNature"-->
+<!--                                        label="考试性质">-->
+<!--                                </el-table-column>-->
+<!--                            </el-table>-->
+<!--                        </el-tab-pane>-->
                     </el-tabs>
                 </el-card>
             </el-col>

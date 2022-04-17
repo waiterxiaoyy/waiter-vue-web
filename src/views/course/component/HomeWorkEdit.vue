@@ -170,6 +170,7 @@
             },
             editHandler() {
                 this.editHomeWorkForm.classId = this.classId;
+                console.log(this.editHomeWorkForm)
                 this.$axios.post('/homework/' + (this.isNew ? 'save':'update'), this.editHomeWorkForm).then(res=> {
                     this.homeworkEditDig = false;
                     this.$notify({

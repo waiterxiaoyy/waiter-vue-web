@@ -20,8 +20,9 @@ import './components/common/directives';
 import 'babel-polyfill';
 import uploader from 'vue-simple-uploader';
 
-import global from './globalFun'
+import Global from './globalFun'
 import MyComm from "./global";
+
 
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'

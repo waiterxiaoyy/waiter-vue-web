@@ -24,6 +24,20 @@ request.interceptors.response.use(response=> {
 
     if(res.code === 200) {
         return response
+    } else if(res.code == 204) {
+        Notification.warning({
+            title: "警告",
+            message: res.msg
+        })
+        return response
+    }  else if(res.code == 201) {
+        Notification.error({
+            title: "提示",
+            message: res.msg
+        })
+        return response
+    } else if(response.status === 200) {
+        return response
     } else {
         Notification.error({
             title: "错误",

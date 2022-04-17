@@ -50,7 +50,7 @@
                             :data="uploadFileData"
                             :headers="uploadHeaders"
                             :on-change="handleChange">
-                        <el-button size="small" type="primary" >提交作业</el-button>
+                        <el-button size="small" type="primary" v-if="hasAuth('course:home:submit')" >提交作业</el-button>
                         <div slot="tip" class="el-upload__tip">不超过100MB</div>
                     </el-upload>
                 </div>
@@ -78,10 +78,10 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                            v-if="hasAuth('course:home:submit')"
+                            v-if="hasAuth('course:home:download')"
                             label="下载作业" width="80">
                         <template slot-scope="scope">
-                            <el-button :disabled="scope.row.statu == 0" type="warning" icon="el-icon-download" circle></el-button>
+                            <el-button :disabled="scope.row.statu == 0" type="warning" icon="el-icon-download" circle v-if="hasAuth('course:home:download')" @click="downloadHomework(scope.row)"></el-button>
                         </template>
 
                     </el-table-column>
@@ -107,6 +107,7 @@
                 handler(newValue) {
                     this.homeworkDetailDig = newValue;
                     if(this.homeworkDetailDig == true) {
+
                         this.getHomeWorkById(this.homeworkId);
                         this.getSubmitInfo(this.homeworkId);
                     }
@@ -128,7 +129,7 @@
                 },
                 uploadFileData:{
                     homeworkId: 0,
-                    studentId: '18251104103'
+                    studentId: ''
                 }
             }
         },
@@ -162,7 +163,50 @@
                     this.getSubmitInfo(this.homeworkId);
                 }
             },
+            // async downloadHomework(scopeRow) {
+            //     const {data: res} = await this.$axios.post('/file/download/homework', scopeRow)
+            //     console.log(res)
+            // },
+            downloadHomework(scopeRow) {
+                // window.location = "http://localhost:8081/file/downloadFile?taskId=" + scopeRow.id;
+                this.$axios.get("/file/downloadFile?taskId="+ scopeRow.id, {responseType: 'blob'}).then(res=> {
+                    // new Blob([data])用来创建URL的file对象或者blob对象
+                    let url = window.URL.createObjectURL(new Blob([res.data]));
+                    // 生成一个a标签
+                    let link = document.createElement("a");
+                    link.style.display = "none";
+                    link.href = url;
+                    // 生成时间戳
+                    let timestamp=new Date().getTime();
+                    link.download = timestamp + "." + scopeRow.fileUrl.split('.')[1];
+                    document.body.appendChild(link);
+                    link.click();
 
+                })
+
+
+                // this.$axios.get("/file/downloadFile?taskId=" + scopeRow.id, {responseType: 'blob'}).then(res => {
+                //     const {data} = res
+                //     const blob = new Blob([data])
+                //     let disposition = decodeURI(res.headers['content-disposition'])
+                //     // 从响应头中获取文件名称
+                //     let fileName = disposition.substring(disposition.indexOf('fileName=') + 9, disposition.length)
+                //     if ('download' in document.createElement('a')) {
+                //         // 非IE下载
+                //         const elink = document.createElement('a')
+                //         elink.download = fileName
+                //         elink.style.display = 'none'
+                //         elink.href = URL.createObjectURL(blob)
+                //         document.body.appendChild(elink)
+                //         elink.click()
+                //         URL.revokeObjectURL(elink.href) // 释放URL 对象
+                //         document.body.removeChild(elink)
+                //     } else {
+                //         // IE10+下载
+                //         navigator.msSaveBlob(blob, fileName)
+                //     }
+                // })
+            }
         }
     }
 </script>

@@ -22,7 +22,20 @@ let MyComm = new Vue({
                ["image"] // 链接、图片、视频-----['link', 'image', 'video']
            ]
        }
-   }
+   },
+    methods: {
+        hasRole(perm) {
+            var authority = this.$store.state.menus.permList;
+            console.log(authority)
+            return authority.indexOf(perm) > -1
+        },
+        hasAuthority(perm) {
+            var authority = this.$store.state.menus.permList
+
+            return authority.indexOf(perm) > -1
+        },
+
+    }
 })
 
 
